@@ -1,6 +1,8 @@
 import React from "react";
-import { Sidebar } from "./components/sidebar/Sidebar";
 import styled from "styled-components";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Sidebar } from "./components/sidebar/Sidebar";
+import Dashboard from "./pages/Dashboard/Dashboard";
 
 const AppContainer = styled.div`
   display: flex;
@@ -13,15 +15,19 @@ const AppContainer = styled.div`
 const App: React.FC = () => {
   const menuItems = [
     { label: "Dashboard", link: "/dashboard" },
+    { label: "Stats", link: "/stats" },
   ];
 
   return (
-    <AppContainer>
-      <Sidebar items={menuItems} />
-      <div style={{ flex: 1, padding: "20px" }}>
-        <h1>Hello World!</h1>
-      </div>
-    </AppContainer>
+    <Router>
+      <AppContainer>
+        <Sidebar items={menuItems} />
+        <Routes>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/stats" element={<div>Hi</div>} />
+        </Routes>
+      </AppContainer>
+    </Router>
   );
 };
 

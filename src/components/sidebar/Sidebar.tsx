@@ -1,47 +1,41 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
 const SidebarContainer = styled.div`
-  width: 200px;
+  width: 250px;
   height: 100vh;
-  background-color: #f4f4f4;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
 `;
 
-const SidebarItems = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 10px 0;
+const SidebarList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
 `;
 
-const SidebarFooter = styled.div`
+const SidebarItem = styled.li`
+  margin: 0;
   padding: 10px;
-  text-align: center;
-  font-size: 0.9rem;
-  background-color: #f8f9fa;
-  color: #6c757d;
-`;
+  border-bottom: 1px solid #eee;
 
-const SidebarItem = styled.a`
-  text-decoration: none;
-  color: #333;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid black;
-  transition: background-color 0.3s ease;
-  &:hover {
-    background-color: #e9ecef;
-  }
-  &:active {
-      background-color: #dee2e6;
+  a {
+    text-decoration: none;
+    color: #333;
+    padding: 10px;
+    display: block;
+
+    &:hover {
+      background-color: #f0f2f5;
     }
   }
-  &:focus {
-      outline: none;
-    }
+
+  .active {
+    font-weight: bold;
+    color: #007bff;
+    background-color: #e9f5ff;
+    border-left: 4px solid #007bff;
   }
 `;
 
@@ -49,26 +43,19 @@ interface SidebarProps {
   items: { label: string; link: string }[];
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ items }) => {
-  return (
-    <SidebarContainer>
-      <SidebarItems>
-        {items.map((item, index) => (
-          <SidebarItem
-            key={index}
-            href={item.link}
-            onMouseEnter={(e) => {
-              (e.target as HTMLElement).style.backgroundColor = "#e9ecef";
-            }}
-            onMouseLeave={(e) => {
-              (e.target as HTMLElement).style.backgroundColor = "transparent";
-            }}
+export const Sidebar: React.FC<SidebarProps> = ({ items }) => (
+  <SidebarContainer>
+    <SidebarList>
+      {items.map((item) => (
+        <SidebarItem key={item.link}>
+          <NavLink 
+            to={item.link} 
+            className={({ isActive }) => (isActive ? "active" : "")}
           >
             {item.label}
-          </SidebarItem>
-        ))}
-      </SidebarItems>
-      <SidebarFooter>© Oilut, 2025</SidebarFooter>
-    </SidebarContainer>
-  );
-};
+          </NavLink>
+        </SidebarItem>
+      ))}
+    </SidebarList>
+  </SidebarContainer>
+);
