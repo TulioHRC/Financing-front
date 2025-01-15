@@ -14,7 +14,7 @@ const AppContainer = styled.div`
 
 const App: React.FC = () => {
   const menuItems = [
-    { label: "Dashboard", link: "/dashboard" },
+    { label: "Dashboard", link: "/" },
     { label: "Stats", link: "/stats" },
   ];
 
@@ -23,7 +23,7 @@ const App: React.FC = () => {
       <AppContainer>
         <Sidebar items={menuItems} />
         <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/stats" element={<div>Hi</div>} />
         </Routes>
       </AppContainer>

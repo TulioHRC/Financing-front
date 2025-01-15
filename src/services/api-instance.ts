@@ -55,8 +55,8 @@ ${error.response?.data?.title ?? error.response?.data?.message ?? ""}
     return this.client.defaults.baseURL;
   }
 
-  public getClientTimeout(): number | undefined{
-    return this.client.defaults.timeout;
+  public getClientTimeout(): number{
+    return this.client.defaults.timeout ?? 30000;
   }
 
   public async get<T>(
