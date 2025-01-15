@@ -8,7 +8,7 @@ export class FinancingApi {
 
   constructor(client?: ApiInstance) {
     // Always ending the FINANCING_BASE_URL with '/'
-    this.client = client || new ApiInstance(import.meta.env.FINANCING_BASE_URL, 30000);
+    this.client = client || new ApiInstance(import.meta.env.VITE_FINANCING_BASE_URL, 30000);
 
     this.investiments = new FinancingInvestimentsService(this.client);
   }

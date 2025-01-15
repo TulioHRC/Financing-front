@@ -34,6 +34,7 @@ class ApiInstance {
   ): Promise<AxiosResponse> {
     try {
       return await this.client(config);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (retryCount < settings.maxRetries) {
         await this.delay(
@@ -61,6 +62,7 @@ ${error.response?.data?.title ?? error.response?.data?.message ?? ""}
 
   public async get<T>(
     url: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params: Record<string, any>,
     options: {
       bearerToken?: string;

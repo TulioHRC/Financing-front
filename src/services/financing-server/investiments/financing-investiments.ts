@@ -12,7 +12,6 @@ export class FinancingInvestimentsService {
   async post(
     request: {
       body: FinancingInvestimentsPostBodyDTO;
-      bearerToken: string;
       settings?: RetrySettings;
     }
   ): Promise<FinancingInvestimentsPostResponseDTO> {
@@ -20,7 +19,6 @@ export class FinancingInvestimentsService {
       ``,
       request.body,
       {
-        bearerToken: request.bearerToken,
         settings: request.settings,
       }
     )).data;
@@ -28,7 +26,6 @@ export class FinancingInvestimentsService {
 
   async get(
     request: {
-      bearerToken: string;
       settings?: RetrySettings;
     }
   ): Promise<FinancingInvestimentsPostResponseDTO> {
@@ -36,7 +33,6 @@ export class FinancingInvestimentsService {
       ``,
       {},
       {
-        bearerToken: request.bearerToken,
         settings: request.settings,
       }
     )).data;
