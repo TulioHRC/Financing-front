@@ -13,7 +13,6 @@ export const useDashboardData = () => {
                 const [investiments] = await Promise.all([
                     financingApi.investiments.get({}),
                 ]);
-                console.log(investiments)
                 setPortfolioData(investiments);
             } catch (error) {
                 console.error("Failed to fetch data", error);

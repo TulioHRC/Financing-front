@@ -1,25 +1,40 @@
-import React, { useState } from "react";
 import { Container, ChartsContainer, PortifolioContainer } from "./styles/styled-components";
+import { Dropdown } from "../../components/dropdown/Dropdown";
 import { useDashboardData } from "../../hooks/useDashboardData";
+import { FinancingInvestimentsPostResponseDTO } from "../../services/financing-server/investiments/dto/financing-investiments.post.response.dto";
+
+interface ItemDTO {
+    label: string;
+    value: string | number;
+}
+
+export interface PortfolioDTO {
+    [key: string]: ItemDTO[];
+}
+
+const transformPortifolioDataInDropdownItems = (data: FinancingInvestimentsPostResponseDTO) : PortfolioDTO => {
+    const portfolioData : PortfolioDTO = {};
+    const types = [...new Set(data.map(investiment => investiment.investiment_type))];
+    for (const type of types) {
+        portfolioData[type] = portfolioData[type] || [];
+    }
+
+    data.forEach(inv => {
+        portfolioData[inv.investiment_type].push({
+            label: inv.name,
+            value: inv.id
+        });
+    })
+
+    return portfolioData;
+}
 
 const Dashboard : React.FC = () => {
     const { portfolioData, isLoading } = useDashboardData();
-    const [isOpen, setIsOpen] = useState<boolean>(false);
-    const [selectedOption, setSelectedOption] = useState<string>("");
-
-    const handleDropdownToggle = () => {
-        setIsOpen(!isOpen);
-    };
-
-    const handleSelectChange = (value: string) => {
-        setSelectedOption(value);
-        setIsOpen(false); // Fecha o dropdown após selecionar uma opção
-    };
 
     if (isLoading || portfolioData === null) {
         return <div>Loading...</div>;
     }
-
 
     return (
         <Container>
@@ -27,28 +42,9 @@ const Dashboard : React.FC = () => {
                 Charts
             </ChartsContainer>
             <PortifolioContainer>
-            <div className="dropdown">
-                    <button className="dropdown-toggle" onClick={handleDropdownToggle}>
-                        {selectedOption ? selectedOption : "Selecione uma opção"}
-                    </button>
-                    <div className={`dropdown-menu ${isOpen ? "open" : ""}`}>
-                        {portfolioData.map((data, index) => (
-                            <div
-                                key={index}
-                                className="dropdown-item"
-                                onClick={() => handleSelectChange(data.name)}
-                            >
-                                {data.name}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
                 {
-                    portfolioData.map((data, index) => (
-                        <div key={index}>
-                            {data.name}
-                        </div>
+                    Object.entries(transformPortifolioDataInDropdownItems(portfolioData)).map(([type, item]) => (
+                        <Dropdown name={type} items={item} key={type} />
                     ))
                 }
             </PortifolioContainer>

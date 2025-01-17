@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Sidebar } from "./components/sidebar/Sidebar";
 import Dashboard from "./pages/Dashboard/Dashboard";
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const AppContainer = styled.div`
   display: flex;
