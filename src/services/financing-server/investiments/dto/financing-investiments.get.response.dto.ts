@@ -1,4 +1,6 @@
-export interface FinancingInvestimentsGetResponseDTO {
+export type FinancingInvestimentsGetResponseDTO = InvestimentDTO[];
+
+interface InvestimentDTO {
   created_at: string,
   updated_at: string,
   deleted_at: string | null,

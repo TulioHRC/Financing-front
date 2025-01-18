@@ -1,4 +1,5 @@
 import { ApiInstance, RetrySettings } from '../../api-instance';
+import { FinancingInvestimentsGetResponseDTO } from './dto/financing-investiments.get.response.dto';
 import { FinancingInvestimentsPostBodyDTO } from './dto/financing-investiments.post.body.dto';
 import { FinancingInvestimentsPostResponseDTO } from './dto/financing-investiments.post.response.dto';
 
@@ -28,8 +29,8 @@ export class FinancingInvestimentsService {
     request: {
       settings?: RetrySettings;
     }
-  ): Promise<FinancingInvestimentsPostResponseDTO> {
-    return (await this.client.get<FinancingInvestimentsPostResponseDTO>(
+  ): Promise<FinancingInvestimentsGetResponseDTO> {
+    return (await this.client.get<FinancingInvestimentsGetResponseDTO>(
       ``,
       {},
       {

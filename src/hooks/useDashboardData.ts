@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import { FinancingApi } from "../services/financing-server/financing-api";
-import { FinancingInvestimentsPostResponseDTO } from "../services/financing-server/investiments/dto/financing-investiments.post.response.dto";
+import { FinancingInvestimentsGetResponseDTO } from "../services/financing-server/investiments/dto/financing-investiments.get.response.dto";
+
+export interface DashboardDataDTO {
+    investiments: FinancingInvestimentsGetResponseDTO;
+};
 
 export const useDashboardData = () => {
-    const [portfolioData, setPortfolioData] = useState<FinancingInvestimentsPostResponseDTO | null>(null);
+    const [portfolioData, setPortfolioData] = useState<DashboardDataDTO | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     
     useEffect(() => {
@@ -13,13 +17,16 @@ export const useDashboardData = () => {
                 const [investiments] = await Promise.all([
                     financingApi.investiments.get({}),
                 ]);
-                setPortfolioData(investiments);
+                setPortfolioData({
+                    investiments,
+                });
             } catch (error) {
                 console.error("Failed to fetch data", error);
             } finally {
                 setIsLoading(false);
             }
         };
+
         fetchData();
     }, []);
 

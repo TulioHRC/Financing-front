@@ -1,28 +1,20 @@
 import { Container, ChartsContainer, PortifolioContainer } from "./styles/styled-components";
-import { Dropdown } from "../../components/dropdown/Dropdown";
-import { useDashboardData } from "../../hooks/useDashboardData";
-import { FinancingInvestimentsPostResponseDTO } from "../../services/financing-server/investiments/dto/financing-investiments.post.response.dto";
+import { Dropdown, PortfolioDTO } from "../../components/dropdown/Dropdown";
+import { DashboardDataDTO, useDashboardData } from "../../hooks/useDashboardData";
 
-interface ItemDTO {
-    label: string;
-    value: string | number;
-}
-
-export interface PortfolioDTO {
-    [key: string]: ItemDTO[];
-}
-
-const transformPortifolioDataInDropdownItems = (data: FinancingInvestimentsPostResponseDTO) : PortfolioDTO => {
+const transformPortifolioDataInDropdownItems = (data: DashboardDataDTO) : PortfolioDTO => {
     const portfolioData : PortfolioDTO = {};
-    const types = [...new Set(data.map(investiment => investiment.investiment_type))];
+    const types = [...new Set(data.investiments.map(investiment => investiment.investiment_type))];
     for (const type of types) {
         portfolioData[type] = portfolioData[type] || [];
     }
 
-    data.forEach(inv => {
+    data.investiments.forEach(inv => {
         portfolioData[inv.investiment_type].push({
             label: inv.name,
-            value: inv.id
+            quantity: 1,
+            averagePrice: 1,
+            actualPrice: 1,
         });
     })
 
