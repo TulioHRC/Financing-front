@@ -8,6 +8,14 @@ export const Container = styled.div`
   padding: 20px;
 `;
 
+export const SwitchContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  justify-content: center;  /* Centraliza os itens horizontalmente */
+  align-items: center;
+`;
+
 export const ChartsContainer = styled.div`
   display: flex;
   flex-direction: row;

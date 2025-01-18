@@ -6,7 +6,7 @@ export interface DashboardDataDTO {
     investiments: FinancingInvestimentsGetResponseDTO;
 };
 
-export const useDashboardData = () => {
+export const useDashboardData = (currencyId: string) => {
     const [portfolioData, setPortfolioData] = useState<DashboardDataDTO | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     

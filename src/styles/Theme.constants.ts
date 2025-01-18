@@ -1,0 +1,116 @@
+export const theme = {
+  color: {
+    base: {
+      "200": "#F8F9FC",
+      "300": "#F1F3F9",
+      "400": "#E1E6EF",
+      "600": "#50555E",
+      "800": "#23272F",
+      "900": "#1B1F27",
+      "1000": "#0A0D14",
+    },
+    primaryNeutral: {
+      "50": "#F8F9FA",
+      "100": "#F8F8F9",
+      "200": "#E9ECEF",
+      "300": "#CED4DA",
+      "400": "#ADB5BD",
+      "500": "#868E96",
+      "600": "#495057",
+      "700": "#343A40",
+      "800": "#212529",
+      "900": "#15181B",
+      "1000": "#111315",
+    },
+    neutral: {
+      "100": "#F1F3F5",
+      "200": "#F8F8F9",
+      "400": "#CFD4DA",
+      "600": "#939AA2",
+      "800": "#50555A",
+      "1000": "#26282A",
+    },
+    neutralBlue: {
+      "100": "#FEFEFE",
+      "200": "#FAFAFB",
+      "300": "#EAEBEE",
+      "400": "#CFD4DA",
+      "500": "#AEB6BF",
+      "600": "#7F8A9B",
+      "700": "#4B5B72",
+      "800": "#21334C",
+      "900": "#162334",
+      "1000": "#0B111A",
+      "1100": "#354FBB",
+    },
+    secondaryBlue: {
+      "50": "#E7F5FF",
+      "200": "#EFF2FD",
+      "700": "#1C7ED6",
+    },
+    success: {
+      "200": "#DFF4E3",
+      "600": "#5FCA72",
+      "800": "#359E48",
+      "900": "#2A7E39",
+    },
+    error: {
+      "200": "#FEE1E1",
+      "100": "#FFF0F0",
+      "700": "#F03E3E",
+      "800": "#C44040",
+      "900": "#983232",
+    },
+    atention: {
+      "200": "#FFE8D6",
+      "700": "#F76707",
+    },
+    brand: {
+      "600": "#FBBB28",
+      "800": "#F08C00",
+    },
+    primitives: {
+      allWhite: "#FFFFFF",
+      allBlack: "#000000",
+      teal: "#1CB285",
+      orange: "#FEA45C",
+      pink: "#E64980",
+      blue: {
+        "700": "#2D88D4",
+      },
+    },
+    highlight: {
+      "100": "#EFF2FD",
+      "600": "#5C79EE",
+      "700": "#4060E3",
+      "800": "#354FBB",
+    },
+  },
+
+  font: {
+    family: {
+      primary: "Inter",
+      title: "Archivo Variable",
+    },
+    size: {
+      xs: "10px",
+      sm: "12px",
+      md: "0.875rem",
+      lg: "1.125rem",
+      xl: "1.25rem",
+    },
+    weight: {
+      thin: 100,
+      extralight: 200,
+      light: 300,
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700,
+    },
+  },
+  box_shadow: {
+    default:
+      "0rem 0rem 0.1rem 0rem rgba(0, 0, 0, 0.25), 0rem 0.2rem 0.1rem 0rem rgba(0, 0, 0, 0.05);",
+  },
+} as const;
