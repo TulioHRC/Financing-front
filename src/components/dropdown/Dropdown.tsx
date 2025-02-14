@@ -124,10 +124,27 @@ export interface PortfolioDTO {
 interface DropdownProps {
   name: string;
   items: ItemDTO[];
+  currency: string;
 }
 
-export const Dropdown: React.FC<DropdownProps> = ({ name, items }) => {
+export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const formatCurrency = (value: number, currency: string) => {
+    const formatter = new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 8, // Adjust for BTC which can have up to 8 decimal places
+    });
+
+    return formatter.format(value);
+  };
+
+  const calculateGrowthPercentage = (averagePrice: number, actualPrice: number | null) => {
+    if (!actualPrice) return null;
+    return ((actualPrice - averagePrice) / averagePrice) * 100;
+  };
 
   return (
     <DropdownContainer onClick={() => setIsOpen(!isOpen)}>
@@ -144,25 +161,65 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items }) => {
           maxHeight: isOpen ? "500px" : "0", // Aplica a transição
         }}
       >
-        {items.map((item) => (
-          <DropdownItem key={item.label}>
-            <div className="item-column">
-              <label>{item.label}</label>
-            </div>
-            <div className="item-column">
-              <label>Quantity</label>
-              <label>{item.quantity}</label>
-            </div>
-            <div className="item-column">
-              <label>Avg Price</label>
-              <label>{item.averagePrice.toFixed(2)}</label>
-            </div>
-            <div className="item-column">
-              <label>Actual Price</label>
-              <label>{item.actualPrice ?? "N/A"}</label>
-            </div>
-          </DropdownItem>
-        ))}
+        {items.map((item) => {
+          const growthPercentage = calculateGrowthPercentage(item.averagePrice, item.actualPrice);
+          const isProfit = growthPercentage !== null && growthPercentage > 0;
+          const isLoss = growthPercentage !== null && growthPercentage < 0;
+
+          return (
+            <DropdownItem key={item.label}>
+              <div className="item-column">
+                <label>{item.label}</label>
+              </div>
+              <div className="item-column">
+                <label>Quantity</label>
+                <label>{item.quantity}</label>
+              </div>
+              <div className="item-column">
+                <label>Avg Price</label>
+                <label>{formatCurrency(item.averagePrice, currency)}</label>
+              </div>
+              <div className="item-column">
+                <label>Total Invested</label>
+                <label>{formatCurrency(item.averagePrice * item.quantity, currency)}</label>
+              </div>
+              <div className="item-column">
+                <label>Actual Price</label>
+                <label>
+                  {item.actualPrice ? formatCurrency(item.actualPrice, currency) : "N/A"}
+                  {growthPercentage !== null && (
+                    <Icon
+                      className={`fas ${
+                        isProfit ? "fa-arrow-up" : isLoss ? "fa-arrow-down" : ""
+                      }`}
+                      style={{
+                        color: isProfit ? "#4CAF50" : isLoss ? "#F44336" : "inherit",
+                        marginLeft: "8px",
+                      }}
+                    />
+                  )}
+                </label>
+              </div>
+              <div className="item-column">
+                <label>Total</label>
+                <label>
+                  {item.actualPrice ? formatCurrency(item.actualPrice * item.quantity, currency) : "N/A"}
+                  {growthPercentage !== null && (
+                    <span
+                      style={{
+                        color: isProfit ? "#4CAF50" : isLoss ? "#F44336" : "inherit",
+                        marginLeft: "8px",
+                        fontSize: "12px",
+                      }}
+                    >
+                      ({growthPercentage.toFixed(2)}%)
+                    </span>
+                  )}
+                </label>
+              </div>
+            </DropdownItem>
+          );
+        })}
       </DropdownDetails>
     </DropdownContainer>
   );

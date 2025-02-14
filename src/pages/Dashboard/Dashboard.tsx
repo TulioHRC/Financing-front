@@ -3,6 +3,7 @@ import { Dropdown, PortfolioDTO } from "../../components/dropdown/Dropdown";
 import { DashboardDataDTO, useDashboardData } from "../../hooks/useDashboardData";
 import { useState } from "react";
 import { Switch } from "../../components/switch/Switch";
+import { currencies } from "../../consts/ownIds";
 
 const transformPortifolioDataInDropdownItems = (data: DashboardDataDTO) : PortfolioDTO => {
     const portfolioData : PortfolioDTO = {};
@@ -14,25 +15,20 @@ const transformPortifolioDataInDropdownItems = (data: DashboardDataDTO) : Portfo
     data.investiments.forEach(inv => {
         portfolioData[inv.investiment_type].push({
             label: inv.name,
-            quantity: 1,
-            averagePrice: 1,
-            actualPrice: 1,
+            quantity: inv.quantity,
+            averagePrice: inv.average_price,
+            actualPrice: inv.actual_price,
         });
-    })
+    });
+
+    console.log(portfolioData)
 
     return portfolioData;
 }
 
-// Put your own Ids
-const currencies : {[key: string]: string} = {
-    'USD': 'ee945987-ae22-4aba-a71b-dcd149c1beaa',
-    'BRL': 'ea5b5f2b-2270-487b-8346-0360a2d8a294',
-    'BTC': '2c9b4899-d121-4ace-958a-4732a6726181',
-}
-
 const Dashboard : React.FC = () => {
     const [currency, setCurrency] = useState<'USD' | 'BRL' | 'BTC'>('BRL');
-    const { portfolioData, isLoading } = useDashboardData(currencies[currency]);
+    const { portfolioData, isLoading } = useDashboardData({id: currencies[currency], name: currency});
 
     if (isLoading || portfolioData === null) {
         return <div>Loading...</div>;
@@ -62,7 +58,7 @@ const Dashboard : React.FC = () => {
             <PortifolioContainer>
                 {
                     Object.entries(transformPortifolioDataInDropdownItems(portfolioData)).map(([type, item]) => (
-                        <Dropdown name={type} items={item} key={type} />
+                        <Dropdown name={type} items={item} key={type} currency={currency} />
                     ))
                 }
             </PortifolioContainer>
