@@ -139,7 +139,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
       minimumFractionDigits: 2,
       maximumFractionDigits: 8,
     });
-    return formatter.format(value);
+    return formatter.format(value).replace('$', '$ ');
   };
 
   const calculateGrowthPercentage = (averagePrice: number, actualPrice: number | null) => {
