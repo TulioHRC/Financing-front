@@ -4,7 +4,7 @@ import { theme } from "../../styles/Theme.constants";
 interface SwitchProps {
   options: { value: string; text: string }[];
   selectedOption: string;
-  setFunction: (value: any) => void;
+  setFunction: (value: string) => void;
   disabled?: boolean;
 }
 
@@ -70,6 +70,6 @@ const SwitchButton = styled.button<{ isselected: 'true' | 'false' }>`
 
   &:hover {
     background: ${({ isselected, disabled }) =>
-      isselected === 'true' || disabled ? undefined : theme.color.primaryNeutral[50]};
+    isselected === 'true' || disabled ? undefined : theme.color.primaryNeutral[50]};
   }
 `;

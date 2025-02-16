@@ -91,10 +91,10 @@ ${error.response?.data?.title ?? error.response?.data?.message ?? ""}
       options.settings
         ? options.settings
         : {
-            maxRetries: 3,
-            retryDelay: 5000,
-            delayType: "linear",
-          }
+          maxRetries: 3,
+          retryDelay: 5000,
+          delayType: "linear",
+        }
     );
   }
 
@@ -128,10 +128,10 @@ ${error.response?.data?.title ?? error.response?.data?.message ?? ""}
       options.settings
         ? options.settings
         : {
-            maxRetries: 0,
-            retryDelay: 0,
-            delayType: "linear",
-          }
+          maxRetries: 0,
+          retryDelay: 0,
+          delayType: "linear",
+        }
     );
   }
 
@@ -165,10 +165,10 @@ ${error.response?.data?.title ?? error.response?.data?.message ?? ""}
       options.settings
         ? options.settings
         : {
-            maxRetries: 0,
-            retryDelay: 0,
-            delayType: "linear",
-          }
+          maxRetries: 0,
+          retryDelay: 0,
+          delayType: "linear",
+        }
     );
   }
 }

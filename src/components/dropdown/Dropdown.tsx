@@ -114,7 +114,9 @@ interface ItemDTO {
   label: string;
   quantity: number;
   averagePrice: number;
+  allocatedPercentage: number;
   actualPrice: number | null;
+  actualPercentage: number;
 }
 
 export interface PortfolioDTO {
@@ -158,7 +160,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
         style={{
           opacity: isOpen ? 1 : 0,
           visibility: isOpen ? "visible" : "hidden",
-          maxHeight: isOpen ? "500px" : "0", // Aplica a transição
+          maxHeight: isOpen ? "500px" : "0",
         }}
       >
         {items.map((item) => {
@@ -201,6 +203,10 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
                 </label>
               </div>
               <div className="item-column">
+                <label>Invested allocation</label>
+                <label>{item.allocatedPercentage.toFixed(1)} %</label>
+              </div>
+              <div className="item-column">
                 <label>Total</label>
                 <label>
                   {item.actualPrice ? formatCurrency(item.actualPrice * item.quantity, currency) : "N/A"}
@@ -216,6 +222,10 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
                     </span>
                   )}
                 </label>
+              </div>
+              <div className="item-column">
+                <label>Actual allocation</label>
+                <label>{item.actualPercentage.toFixed(1)} %</label>
               </div>
             </DropdownItem>
           );
