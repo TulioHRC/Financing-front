@@ -4,6 +4,7 @@ import { DashboardDataDTO, useDashboardData } from "../../hooks/useDashboardData
 import { useState } from "react";
 import { Switch } from "../../components/switch/Switch";
 import { currencies } from "../../consts/ownIds";
+import PieChartComponent from "./charts/PieChartComponent";
 
 const transformPortifolioDataInDropdownItems = (data: DashboardDataDTO) : PortfolioDTO => {
   const portfolioData : PortfolioDTO = {};
@@ -61,7 +62,7 @@ const Dashboard : React.FC = () => {
         ]} selectedOption={currency} setFunction={setCurrency} />
       </SwitchContainer>
       <ChartsContainer>
-                Charts
+        <PieChartComponent />
       </ChartsContainer>
       <PortifolioContainer>
         {
