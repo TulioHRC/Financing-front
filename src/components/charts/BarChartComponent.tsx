@@ -1,13 +1,16 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 
-const data = [
+const templateData = [
   { name: "Category A", value: 400 },
   { name: "Category B", value: 300 },
   { name: "Category C", value: 200 },
   { name: "Category D", value: 100 },
 ];
 
-const BarChartComponent = ({ title = "Default Title" }) => {
+const BarChartComponent = ({
+  title = "Default Title",
+  data = templateData,
+}) => {
   return (
     <div style={{ textAlign: "center" }}>
       <h2>{title}</h2>
