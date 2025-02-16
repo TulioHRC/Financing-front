@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FinancingApi } from "../services/financing-server/financing-api";
 import { getInvestimentOperations } from "./utils";
 
@@ -20,7 +20,8 @@ export const useDashboardData = (currency: {id: string, name: string}) => {
   const [portfolioData, setPortfolioData] = useState<DashboardDataDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
     
-  useEffect(() => {
+  useMemo(() => {
+    console.log(currency)
     const fetchData = async () => {
       const financingApi = new FinancingApi();
       try {
@@ -72,7 +73,8 @@ export const useDashboardData = (currency: {id: string, name: string}) => {
     };
 
     fetchData();
-  });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currency.id, currency.name]);
 
   return { portfolioData, isLoading };
 };

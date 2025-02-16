@@ -1,7 +1,7 @@
 import { Container, ChartsContainer, PortifolioContainer, SwitchContainer } from "./styles/styled-components";
 import { Dropdown, PortfolioDTO } from "../../components/dropdown/Dropdown";
 import { DashboardDataDTO, useDashboardData } from "../../hooks/useDashboardData";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Switch } from "../../components/switch/Switch";
 import { currencies } from "../../consts/ownIds";
 import PieChartComponent from "../../components/charts/PieChartComponent";
