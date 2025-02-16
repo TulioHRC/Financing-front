@@ -114,7 +114,9 @@ interface ItemDTO {
   label: string;
   quantity: number;
   averagePrice: number;
+  allocatedPercentage: number;
   actualPrice: number | null;
+  actualPercentage: number;
 }
 
 export interface PortfolioDTO {
@@ -135,9 +137,8 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 2,
-      maximumFractionDigits: 8, // Adjust for BTC which can have up to 8 decimal places
+      maximumFractionDigits: 8,
     });
-
     return formatter.format(value);
   };
 
@@ -146,10 +147,30 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
     return ((actualPrice - averagePrice) / averagePrice) * 100;
   };
 
+  const totalInvested = items.reduce((sum, item) => sum + item.averagePrice * item.quantity, 0);
+  const totalActual = items.reduce((sum, item) => sum + (item.actualPrice || 0) * item.quantity, 0);
+  const growthPercentage = ((totalActual - totalInvested) / totalInvested) * 100;
+  const isProfit = growthPercentage > 0;
+  const isLoss = growthPercentage < 0;
+
   return (
     <DropdownContainer onClick={() => setIsOpen(!isOpen)}>
       <DropdownHeader>
-        <p>{name}</p>
+        <div>
+          <p>{name}</p>
+          <br />
+          <p>
+            Total Invested: {formatCurrency(totalInvested, currency)} | Total Actual:{" "}
+            {formatCurrency(totalActual, currency)} |{" "}
+            <span
+              style={{
+                color: isProfit ? "#4CAF50" : isLoss ? "#F44336" : "inherit",
+              }}
+            >
+              {growthPercentage.toFixed(2)}%
+            </span>
+          </p>
+        </div>
         <div>
           <Icon className={isOpen ? "fas fa-angle-up" : "fas fa-angle-down"} />
         </div>
@@ -158,7 +179,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
         style={{
           opacity: isOpen ? 1 : 0,
           visibility: isOpen ? "visible" : "hidden",
-          maxHeight: isOpen ? "500px" : "0", // Aplica a transição
+          maxHeight: isOpen ? "500px" : "0",
         }}
       >
         {items.map((item) => {
@@ -201,6 +222,10 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
                 </label>
               </div>
               <div className="item-column">
+                <label>Invested allocation</label>
+                <label>{item.allocatedPercentage.toFixed(1)} %</label>
+              </div>
+              <div className="item-column">
                 <label>Total</label>
                 <label>
                   {item.actualPrice ? formatCurrency(item.actualPrice * item.quantity, currency) : "N/A"}
@@ -216,6 +241,10 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
                     </span>
                   )}
                 </label>
+              </div>
+              <div className="item-column">
+                <label>Actual allocation</label>
+                <label>{item.actualPercentage.toFixed(1)} %</label>
               </div>
             </DropdownItem>
           );
