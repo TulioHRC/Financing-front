@@ -1,6 +1,11 @@
 import { PieChart, Pie, Cell, Legend } from "recharts";
 
-const templateData = [
+export type PieChartData = {
+  name: string;
+  value: number;
+}[];
+
+const templateData : PieChartData = [
   { name: "Category A", value: 1 },
   { name: "Category B", value: 300 },
   { name: "Category C", value: 200 },
@@ -12,7 +17,7 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 const PieChartComponent = ({
   title = "Default Title",
   data = templateData
-}) => {
+} : {title?: string, data?: PieChartData}) => {
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
   const dataWithPercentage = data.map((item) => ({

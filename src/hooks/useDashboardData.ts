@@ -17,7 +17,7 @@ export interface DashboardDataDTO {
 };
 
 export const useDashboardData = (currency: {id: string, name: string}) => {
-  const [portfolioData, setPortfolioData] = useState<DashboardDataDTO | null>(null);
+  const [portfilioData, setPortfilioData] = useState<DashboardDataDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
     
   useMemo(() => {
@@ -64,7 +64,7 @@ export const useDashboardData = (currency: {id: string, name: string}) => {
           });
         });
 
-        setPortfolioData(data);
+        setPortfilioData(data);
       } catch (error) {
         console.error("Failed to fetch data", error);
       } finally {
@@ -76,5 +76,5 @@ export const useDashboardData = (currency: {id: string, name: string}) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currency.id, currency.name]);
 
-  return { portfolioData, isLoading };
+  return { portfilioData, isLoading };
 };

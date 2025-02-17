@@ -1,6 +1,11 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 
-const templateData = [
+export type BarChartData = {
+  name: string;
+  value: number;
+}[];
+
+const templateData : BarChartData = [
   { name: "Category A", value: 400 },
   { name: "Category B", value: 300 },
   { name: "Category C", value: 200 },
@@ -10,7 +15,7 @@ const templateData = [
 const BarChartComponent = ({
   title = "Default Title",
   data = templateData,
-}) => {
+} : {title?: string, data?: BarChartData}) => {
   return (
     <div style={{ textAlign: "center" }}>
       <h2>{title}</h2>
