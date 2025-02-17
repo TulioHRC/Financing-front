@@ -20,3 +20,8 @@ export function getInvestimentOperations(
       .reduce((acc, op) => acc + op.price * op.quantity, 0) / getQuantity(investiment_id, operations),
   };
 }
+
+export function getOldestInvestimentDate(operations: FinancingOperationsResponseDTO) : Date {
+  const oldestDate = operations.reduce((acc, op) => op.date < acc? op.date : acc, operations[0].date);
+  return oldestDate;
+}

@@ -1,19 +1,22 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { FinancingApi } from "../services/financing-server/financing-api";
-import { getInvestimentOperations } from "./utils";
+import { getInvestimentOperations, getOldestInvestimentDate } from "./utils";
 
 export interface DashboardDataDTO {
-    investiments: {
-        id: string,
-        name: string,
-        investiment_type: string,
-        segment: string,
-        currency_id: string,
-        quotation: number | null,
-        quantity: number,
-        average_price: number,
-        actual_price: number | null,
-    }[];
+  investiments: {
+    id: string,
+    name: string,
+    investiment_type: string,
+    segment: string,
+    currency_id: string,
+    quotation: number | null,
+    quantity: number,
+    average_price: number,
+    actual_price: number | null,
+  }[];
+  patrimony_by_month: {
+    [month: string]: number;
+  }
 };
 
 export const useDashboardData = (currency: {id: string, name: string}) => {
@@ -21,7 +24,6 @@ export const useDashboardData = (currency: {id: string, name: string}) => {
   const [isLoading, setIsLoading] = useState(true);
     
   useMemo(() => {
-    console.log(currency)
     const fetchData = async () => {
       const financingApi = new FinancingApi();
       try {
@@ -35,7 +37,45 @@ export const useDashboardData = (currency: {id: string, name: string}) => {
         const dolar_quotation = currencies.find(c => c.name === 'USD')?.quotation_in_BRL ?? null;
         const btc_quotation = currencies.find(c => c.name === 'BTC')?.quotation_in_BRL ?? null;
 
-        const data : DashboardDataDTO = { investiments: [] };
+        const data : DashboardDataDTO = { investiments: [], patrimony_by_month: {} };
+
+        const oldestInvestmentDate = getOldestInvestimentDate(operations);
+        let oldestInvestmentMonth = new Date(oldestInvestmentDate).toISOString().slice(0, 7);
+
+        const currentDate = new Date();
+        const currentMonth = currentDate.toISOString().slice(0, 7);
+
+        while (oldestInvestmentMonth <= currentMonth) {
+          data.patrimony_by_month[oldestInvestmentMonth] = 0;
+
+          const [year, month] = oldestInvestmentMonth.split('-').map(Number);
+          if (month === 12) {
+            oldestInvestmentMonth = `${year + 1}-01`;
+          } else {
+            oldestInvestmentMonth = `${year}-${String(month + 1).padStart(2, '0')}`;
+          }
+        }
+
+        const sorted_operations_by_date = operations.sort((a, b) => 
+          new Date(b.date ?? 0).getTime() - new Date(a.date?? 0).getTime());
+
+        let actual_value = 0;
+        for (const operation of sorted_operations_by_date) {
+          actual_value += operation.price * operation.quantity;
+          let actualMonth = new Date(operation.date).toISOString().slice(0, 7);
+
+          // Sum in all the next months also
+          while (actualMonth <= currentMonth) {
+            data.patrimony_by_month[actualMonth] += actual_value;
+  
+            const [year, month] = actualMonth.split('-').map(Number);
+            if (month === 12) {
+              actualMonth = `${year + 1}-01`;
+            } else {
+              actualMonth = `${year}-${String(month + 1).padStart(2, '0')}`;
+            }
+          }
+        }
 
         investiments.forEach(investiment => {
           // BRL quotation

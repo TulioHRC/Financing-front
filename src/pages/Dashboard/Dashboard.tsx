@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Switch } from "../../components/switch/Switch";
 import { currencies } from "../../consts/ownIds";
 import PieChartComponent, { PieChartData } from "../../components/charts/PieChartComponent";
-import BarChartComponent from "../../components/charts/BarChartComponent";
+import BarChartComponent, { BarChartData } from "../../components/charts/BarChartComponent";
 
 const transformPortifolioDataInInvestedByType = (data: DashboardDataDTO) : PieChartData => {
   const res : PieChartData = [];
@@ -27,6 +27,19 @@ const transformPortifolioDataInInvestedByType = (data: DashboardDataDTO) : PieCh
       value: investedByType[type],
     });  
   }
+
+  return res;
+}
+
+const transformPortifolioDataInPatrimonialGrowth = (data: DashboardDataDTO) : BarChartData => {
+  const res : BarChartData = [];
+
+  Object.keys(data.patrimony_by_month).forEach(key => {
+    res.push({
+      name: key,
+      value: data.patrimony_by_month[key],
+    });
+  })
 
   return res;
 }
@@ -113,7 +126,7 @@ const Dashboard : React.FC = () => {
       <ChartsContainer>
         <PieChartComponent title="Invested" data={transformPortifolioDataInInvestedByType(portfilioData)} />
         <PieChartComponent title="Actual" data={transformPortifolioDataInActualByType(portfilioData)} />
-        <BarChartComponent title="Patrimonial Growth" />
+        <BarChartComponent title="Patrimonial Growth" data={transformPortifolioDataInPatrimonialGrowth(portfilioData)} />
       </ChartsContainer>
       <PortifolioContainer>
         {
