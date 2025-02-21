@@ -1,52 +1,52 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { FinancingApi } from "../services/financing-server/financing-api";
 
 export interface PricesDataDTO {
   investiments: {
-    id: string,
-    name: string,
-    type: string,
-    price: number | null,
-    currency_id: string
+    id: string;
+    name: string;
+    type: string;
+    price: number | null;
+    currency_id: string;
   }[];
-};
+}
 
 export const usePricesData = () => {
   const [data, setData] = useState<PricesDataDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-    
-  useMemo(() => {
-    const fetchData = async () => {
-      const financingApi = new FinancingApi();
-      try {
-        const [investiments, prices] = await Promise.all([
-          financingApi.investiments.get({}),
-          financingApi.prices.get({})
-        ]);
 
-        const pricesObject : { [key: string]: number } = {};
-        prices.forEach(p => pricesObject[p.investiment_id] = p.price);
+  const fetchData = useCallback(async () => {
+    const financingApi = new FinancingApi();
+    try {
+      const [investiments, prices] = await Promise.all([
+        financingApi.investiments.get({}),
+        financingApi.prices.get({}),
+      ]);
 
-        const data : PricesDataDTO = { investiments: investiments.map(inv => {
-          return {
-            id: inv.id,
-            name: inv.name,
-            type: inv.investiment_type,
-            price: pricesObject[inv.id] ?? null,
-            currency_id: inv.currency_id,
-          }
-        })};
+      const pricesObject: { [key: string]: number } = {};
+      prices.forEach((p) => (pricesObject[p.investiment_id] = p.price));
 
-        setData(data);
-      } catch (error) {
-        console.error("Failed to fetch data", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      const data: PricesDataDTO = {
+        investiments: investiments.map((inv) => ({
+          id: inv.id,
+          name: inv.name,
+          type: inv.investiment_type,
+          price: pricesObject[inv.id] ?? null,
+          currency_id: inv.currency_id,
+        })),
+      };
 
-    fetchData();
+      setData(data);
+    } catch (error) {
+      console.error("Failed to fetch data", error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  return { data, isLoading };
+  useMemo(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return { data, isLoading, refetch: fetchData };
 };
