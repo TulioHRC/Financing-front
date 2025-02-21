@@ -27,12 +27,15 @@ export const useDashboardData = (currency: {id: string, name: string}) => {
     const fetchData = async () => {
       const financingApi = new FinancingApi();
       try {
-        const currencies = await financingApi.currencies.get({});
-
-        const [investiments, operations] = await Promise.all([
+        const [currencies, investiments, operations, prices] = await Promise.all([
+          financingApi.currencies.get({}),
           financingApi.investiments.get({}),
           financingApi.operations.get({}),
+          financingApi.prices.get({})
         ]);
+
+        const pricesObject : { [key: string]: number } = {};
+        prices.forEach(p => pricesObject[p.investiment_id] = p.price);
 
         const dolar_quotation = currencies.find(c => c.name === 'USD')?.quotation_in_BRL ?? null;
         const btc_quotation = currencies.find(c => c.name === 'BTC')?.quotation_in_BRL ?? null;
@@ -100,7 +103,7 @@ export const useDashboardData = (currency: {id: string, name: string}) => {
             quotation,
             quantity: operationsByInvestiment.quantity,
             average_price: operationsByInvestiment.averagePrice,
-            actual_price: 0.5,
+            actual_price: pricesObject[investiment.id] ?? 0,
           });
         });
 

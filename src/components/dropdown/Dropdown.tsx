@@ -157,7 +157,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
     <DropdownContainer onClick={() => setIsOpen(!isOpen)}>
       <DropdownHeader>
         <div>
-          <p>{name}</p>
+          <p>{name} ({items?.length ?? 0})</p>
           <br />
           <p>
             Total Invested: {formatCurrency(totalInvested, currency)} | Total Actual:{" "}
@@ -182,7 +182,9 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
           maxHeight: isOpen ? "500px" : "0",
         }}
       >
-        {items.map((item) => {
+        {items.sort((a, b) => {
+          return (b.quantity * (b.actualPrice ?? 0)) - (a.quantity * (a.actualPrice ?? 0));
+        }).map((item) => {
           const growthPercentage = calculateGrowthPercentage(item.averagePrice, item.actualPrice);
           const isProfit = growthPercentage !== null && growthPercentage > 0;
           const isLoss = growthPercentage !== null && growthPercentage < 0;
