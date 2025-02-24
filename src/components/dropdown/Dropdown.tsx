@@ -126,7 +126,7 @@ export interface PortfolioDTO {
 interface DropdownProps {
   name: string;
   items: ItemDTO[];
-  currency: string;
+  currency?: string;
 }
 
 export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => {
@@ -136,10 +136,10 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
     const formatter = new Intl.NumberFormat(undefined, {
       style: 'currency',
       currency: currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 8,
+      minimumFractionDigits: currency === 'BTC' ? 8 : 2,
+      maximumFractionDigits: currency === 'BTC' ? 8 : 2,
     });
-    return formatter.format(value);
+    return formatter.format(value).replace('$', '$ ');
   };
 
   const calculateGrowthPercentage = (averagePrice: number, actualPrice: number | null) => {
@@ -157,11 +157,11 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
     <DropdownContainer onClick={() => setIsOpen(!isOpen)}>
       <DropdownHeader>
         <div>
-          <p>{name}</p>
+          <p>{name} ({items?.length ?? 0})</p>
           <br />
           <p>
-            Total Invested: {formatCurrency(totalInvested, currency)} | Total Actual:{" "}
-            {formatCurrency(totalActual, currency)} |{" "}
+            Total Invested: {currency ? formatCurrency(totalInvested, currency) : '-'} | Total Actual:{" "}
+            {currency ? formatCurrency(totalActual, currency) : '-'} |{" "}
             <span
               style={{
                 color: isProfit ? "#4CAF50" : isLoss ? "#F44336" : "inherit",
@@ -182,7 +182,9 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
           maxHeight: isOpen ? "500px" : "0",
         }}
       >
-        {items.map((item) => {
+        {items.sort((a, b) => {
+          return (b.quantity * (b.actualPrice ?? 0)) - (a.quantity * (a.actualPrice ?? 0));
+        }).map((item) => {
           const growthPercentage = calculateGrowthPercentage(item.averagePrice, item.actualPrice);
           const isProfit = growthPercentage !== null && growthPercentage > 0;
           const isLoss = growthPercentage !== null && growthPercentage < 0;
@@ -198,16 +200,16 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
               </div>
               <div className="item-column">
                 <label>Avg Price</label>
-                <label>{formatCurrency(item.averagePrice, currency)}</label>
+                <label>{currency ? formatCurrency(item.averagePrice, currency) : '-'}</label>
               </div>
               <div className="item-column">
                 <label>Total Invested</label>
-                <label>{formatCurrency(item.averagePrice * item.quantity, currency)}</label>
+                <label>{currency ? formatCurrency(item.averagePrice * item.quantity, currency) : '-'}</label>
               </div>
               <div className="item-column">
                 <label>Actual Price</label>
                 <label>
-                  {item.actualPrice ? formatCurrency(item.actualPrice, currency) : "N/A"}
+                  {item.actualPrice && currency ? formatCurrency(item.actualPrice, currency) : "N/A"}
                   {growthPercentage !== null && (
                     <Icon
                       className={`fas ${
@@ -228,7 +230,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => 
               <div className="item-column">
                 <label>Total</label>
                 <label>
-                  {item.actualPrice ? formatCurrency(item.actualPrice * item.quantity, currency) : "N/A"}
+                  {item.actualPrice && currency ? formatCurrency(item.actualPrice * item.quantity, currency) : "N/A"}
                   {growthPercentage !== null && (
                     <span
                       style={{
