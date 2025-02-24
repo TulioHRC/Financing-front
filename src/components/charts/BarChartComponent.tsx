@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 
 export type BarChartData = {
   name: string;
@@ -28,6 +28,7 @@ const BarChartComponent = ({
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="name" />
         <YAxis />
+        <Tooltip />
         <Bar dataKey="value" fill="#8884d8" />
       </BarChart>
     </div>

@@ -1,4 +1,5 @@
 import { ApiInstance } from '../api-instance';
+import { FinancingCurrenciesOperationsService } from './currencies-operations/financing-currencies-operations';
 import { FinancingCurrenciesService } from './currencies/financing-currencies';
 import { FinancingInvestimentsService } from './investiments/financing-investiments';
 import { FinancingOperationsService } from './operations/financing-operations';
@@ -11,6 +12,7 @@ export class FinancingApi {
   public currencies: FinancingCurrenciesService;
   public operations: FinancingOperationsService;
   public prices: FinancingPricesService;
+  public currenciesOperations: FinancingCurrenciesOperationsService;
 
   constructor(client?: ApiInstance) {
     // Always ending the FINANCING_BASE_URL with '/'
@@ -20,5 +22,6 @@ export class FinancingApi {
     this.currencies = new FinancingCurrenciesService(this.client);
     this.operations = new FinancingOperationsService(this.client);
     this.prices = new FinancingPricesService(this.client);
+    this.currenciesOperations = new FinancingCurrenciesOperationsService(this.client);
   }
 }

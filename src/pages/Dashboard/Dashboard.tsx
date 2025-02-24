@@ -3,21 +3,26 @@ import { Dropdown, PortfolioDTO } from "../../components/dropdown/Dropdown";
 import { DashboardDataDTO, useDashboardData } from "../../hooks/useDashboardData";
 import { useState } from "react";
 import { Switch } from "../../components/switch/Switch";
-import { currencies } from "../../consts/ownIds";
 import PieChartComponent, { PieChartData } from "../../components/charts/PieChartComponent";
 import BarChartComponent, { BarChartData } from "../../components/charts/BarChartComponent";
 
 const transformPortifolioDataInInvestedByType = (data: DashboardDataDTO) : PieChartData => {
   const res : PieChartData = [];
   const investedByType : { [key: string] : number } = {};
-  const types = [...new Set(data.investiments.map(investiment => investiment.investiment_type))];
+  const types = [...new Set(data.investiments.map(investiment => investiment.investiment_type)), 'CURRENCIES'];
   for (const type of types) {
     investedByType[type] = 0;
   }
 
   data.investiments.forEach(inv => {
     if (inv.quantity > 0) {
-      investedByType[inv.investiment_type] += inv.quantity * inv.average_price;
+      investedByType[inv.investiment_type] += inv.quantity * inv.average_price * inv.quotation;
+    }
+  });
+
+  data.currencies_investiments.forEach(cInv => {
+    if (cInv.quantity > 0) {
+      investedByType['CURRENCIES'] += ((cInv.quantity - cInv.used_quantity) / cInv.quantity)  * cInv.price;
     }
   });
 
@@ -47,14 +52,20 @@ const transformPortifolioDataInPatrimonialGrowth = (data: DashboardDataDTO) : Ba
 const transformPortifolioDataInActualByType = (data: DashboardDataDTO) : PieChartData => {
   const res : PieChartData = [];
   const actualByType : { [key: string] : number } = {};
-  const types = [...new Set(data.investiments.map(investiment => investiment.investiment_type))];
+  const types = [...new Set(data.investiments.map(investiment => investiment.investiment_type)), 'CURRENCIES'];
   for (const type of types) {
     actualByType[type] = 0;
   }
 
   data.investiments.forEach(inv => {
     if (inv.quantity > 0) {
-      actualByType[inv.investiment_type] += inv.quantity * (inv.actual_price ?? 0);
+      actualByType[inv.investiment_type] += inv.quantity * (inv.actual_price ?? 0) * inv.quotation;
+    }
+  });
+
+  data.currencies_investiments.forEach(cInv => {
+    if (cInv.quantity > 0) {
+      actualByType['CURRENCIES'] += (cInv.quantity - cInv.used_quantity)  * cInv.quotation;
     }
   });
 
@@ -71,26 +82,40 @@ const transformPortifolioDataInActualByType = (data: DashboardDataDTO) : PieChar
 
 const transformPortifolioDataInDropdownItems = (data: DashboardDataDTO) : PortfolioDTO => {
   const portfilioData : PortfolioDTO = {};
-  const types = [...new Set(data.investiments.map(investiment => investiment.investiment_type))];
+  const types = [...new Set(data.investiments.map(investiment => investiment.investiment_type)), 'CURRENCIES'];
   for (const type of types) {
     portfilioData[type] = portfilioData[type] || [];
   }
 
-  const allocatedValue = data.investiments.reduce((acc, actual) => (actual.quantity !== 0 && actual.average_price) ? 
+  let allocatedValue = data.investiments.reduce((acc, actual) => (actual.quantity !== 0 && actual.average_price) ? 
     actual.average_price * actual.quantity + acc : acc, 0);
+  allocatedValue += data.currencies_investiments.reduce((acc, actual) => acc + actual.price * ((actual.quantity - actual.used_quantity) / actual.quantity), 0);
     
-  const actualValue = data.investiments.reduce((acc, actual) => (actual.quantity !== 0 && actual.actual_price) ? 
+  let actualValue = data.investiments.reduce((acc, actual) => (actual.quantity !== 0 && actual.actual_price) ? 
     actual.actual_price * actual.quantity + acc : acc, 0);
+  actualValue += data.currencies_investiments.reduce((acc, actual) => acc + actual.quotation * (actual.quantity - actual.used_quantity), 0);
+    
+  data.currencies_investiments.forEach(cInv => {
+    if (cInv.quantity > 0)
+      portfilioData['CURRENCIES'].push({
+        label: cInv.name,
+        quantity: cInv.quantity - cInv.used_quantity,
+        averagePrice: cInv.price / cInv.quantity,
+        allocatedPercentage: (((cInv.quantity - cInv.used_quantity) / cInv.quantity) * cInv.price / allocatedValue) * 100,
+        actualPrice: cInv.quotation,
+        actualPercentage: ((cInv.quantity - cInv.used_quantity) * cInv.quotation / actualValue) * 100,
+      });
+  });
 
   data.investiments.forEach(inv => {
     if (inv.quantity > 0)
       portfilioData[inv.investiment_type].push({
         label: inv.name,
         quantity: inv.quantity,
-        averagePrice: inv.average_price,
-        allocatedPercentage: ((inv.quantity * (inv.average_price ?? 0)) / allocatedValue) * 100,
-        actualPrice: inv.actual_price,
-        actualPercentage: ((inv.quantity * (inv.actual_price ?? 0)) / actualValue) * 100,
+        averagePrice: inv.average_price * inv.quotation,
+        allocatedPercentage: ((inv.quantity * (inv.average_price ?? 0) * inv.quotation) / allocatedValue) * 100,
+        actualPrice: (inv.actual_price ?? 0) * inv.quotation,
+        actualPercentage: ((inv.quantity * (inv.actual_price ?? 0) * inv.quotation) / actualValue) * 100,
       });
   });
 
@@ -98,8 +123,8 @@ const transformPortifolioDataInDropdownItems = (data: DashboardDataDTO) : Portfo
 }
 
 const Dashboard : React.FC = () => {
-  const [currency, setCurrency] = useState<string>('BRL');
-  const { portfilioData, isLoading } = useDashboardData({id: currencies[currency], name: currency});
+  const [currency, setCurrency] = useState<string>(import.meta.env.VITE_MAIN_CURRENCY_ID);
+  const { portfilioData, isLoading } = useDashboardData({id: currency});
 
   if (isLoading || portfilioData === null) {
     return <div>Loading...</div>;
@@ -108,20 +133,12 @@ const Dashboard : React.FC = () => {
   return (
     <Container>
       <SwitchContainer>
-        <Switch options={[
-          {
-            value: 'USD',
-            text: 'USD',
-          },
-          {
-            value: 'BRL',
-            text: 'BRL',
-          },
-          {
-            value: 'BTC',
-            text: 'BTC',
-          },
-        ]} selectedOption={currency} setFunction={setCurrency} />
+        <Switch options={
+          portfilioData.currencies.map(c => ({
+            value: c.id,
+            text: c.name,
+          }))
+        } selectedOption={currency} setFunction={setCurrency} />
       </SwitchContainer>
       <ChartsContainer>
         <PieChartComponent title="Invested" data={transformPortifolioDataInInvestedByType(portfilioData)} />
@@ -131,7 +148,7 @@ const Dashboard : React.FC = () => {
       <PortifolioContainer>
         {
           Object.entries(transformPortifolioDataInDropdownItems(portfilioData)).map(([type, item]) => (
-            <Dropdown name={type} items={item} key={type} currency={currency} />
+            <Dropdown name={type} items={item} key={type} currency={portfilioData.currencies.find(c => c.id === currency)?.name} />
           ))
         }
       </PortifolioContainer>
