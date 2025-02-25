@@ -129,18 +129,20 @@ interface DropdownProps {
   currency?: string;
 }
 
+export const formatCurrency = (value: number, currency?: string) => {
+  if(!currency) return value;
+  const formatter = new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: currency === 'BTC' ? 8 : 2,
+    maximumFractionDigits: currency === 'BTC' ? 8 : 2,
+  });
+  return formatter.format(value).replace('$', '$ ');
+};
+
 export const Dropdown: React.FC<DropdownProps> = ({ name, items, currency }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const formatCurrency = (value: number, currency: string) => {
-    const formatter = new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: currency === 'BTC' ? 8 : 2,
-      maximumFractionDigits: currency === 'BTC' ? 8 : 2,
-    });
-    return formatter.format(value).replace('$', '$ ');
-  };
 
   const calculateGrowthPercentage = (averagePrice: number, actualPrice: number | null) => {
     if (!actualPrice) return null;

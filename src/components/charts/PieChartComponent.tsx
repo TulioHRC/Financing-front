@@ -12,7 +12,7 @@ const templateData : PieChartData = [
   { name: "Category D", value: 100 },
 ];
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#FF9033"];
 
 const PieChartComponent = ({
   title = "Default Title",

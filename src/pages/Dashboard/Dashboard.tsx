@@ -1,5 +1,5 @@
-import { Container, ChartsContainer, PortifolioContainer, SwitchContainer } from "./styles/styled-components";
-import { Dropdown, PortfolioDTO } from "../../components/dropdown/Dropdown";
+import { Container, ChartsContainer, PortifolioContainer, SwitchContainer, HeaderContainer, Box } from "./styles/styled-components";
+import { Dropdown, formatCurrency, PortfolioDTO } from "../../components/dropdown/Dropdown";
 import { DashboardDataDTO, useDashboardData } from "../../hooks/useDashboardData";
 import { useState } from "react";
 import { Switch } from "../../components/switch/Switch";
@@ -122,23 +122,38 @@ const transformPortifolioDataInDropdownItems = (data: DashboardDataDTO) : Portfo
   return portfilioData;
 }
 
-const Dashboard : React.FC = () => {
+const Dashboard: React.FC = () => {
   const [currency, setCurrency] = useState<string>(import.meta.env.VITE_MAIN_CURRENCY_ID);
-  const { portfilioData, isLoading } = useDashboardData({id: currency});
+  const { portfilioData, isLoading } = useDashboardData({ id: currency });
 
   if (isLoading || portfilioData === null) {
     return <div>Loading...</div>;
   }
 
+  // Calcular o valor investido total
+  const investedValue = transformPortifolioDataInInvestedByType(portfilioData).reduce((acc, curr) => acc + curr.value, 0);
+
+  // Calcular o valor atual total
+  const actualValue = transformPortifolioDataInActualByType(portfilioData).reduce((acc, curr) => acc + curr.value, 0);
+
+  // Calcular a porcentagem de crescimento
+  const growthPercentage = ((actualValue - investedValue) / investedValue) * 100;
+
+  // Determinar se é lucro, perda ou neutro
+  const isProfit = growthPercentage > 0;
+  const isLoss = growthPercentage < 0;
+
   return (
     <Container>
       <SwitchContainer>
-        <Switch options={
-          portfilioData.currencies.map(c => ({
+        <Switch
+          options={portfilioData.currencies.map((c) => ({
             value: c.id,
             text: c.name,
-          }))
-        } selectedOption={currency} setFunction={setCurrency} />
+          }))}
+          selectedOption={currency}
+          setFunction={setCurrency}
+        />
       </SwitchContainer>
       <ChartsContainer>
         <PieChartComponent title="Invested" data={transformPortifolioDataInInvestedByType(portfilioData)} />
@@ -146,14 +161,31 @@ const Dashboard : React.FC = () => {
         <BarChartComponent title="Patrimonial Growth" data={transformPortifolioDataInPatrimonialGrowth(portfilioData)} />
       </ChartsContainer>
       <PortifolioContainer>
-        {
-          Object.entries(transformPortifolioDataInDropdownItems(portfilioData)).map(([type, item]) => (
-            <Dropdown name={type} items={item} key={type} currency={portfilioData.currencies.find(c => c.id === currency)?.name} />
-          ))
-        }
+        <HeaderContainer>
+          <Box>
+            <p>Invested Value</p>
+            <h3>{formatCurrency(investedValue, portfilioData.currencies.find((c) => c.id === currency)?.name)}</h3>
+          </Box>
+          <Box>
+            <p>Actual Value</p>
+            <div>
+              <h3>{formatCurrency(actualValue, portfilioData.currencies.find((c) => c.id === currency)?.name)}</h3>
+              <span
+                style={{
+                  color: isProfit ? "#4CAF50" : isLoss ? "#F44336" : "inherit",
+                }}
+              >
+                {growthPercentage.toFixed(2)}%
+              </span>
+            </div>
+          </Box>
+        </HeaderContainer>
+        {Object.entries(transformPortifolioDataInDropdownItems(portfilioData)).map(([type, item]) => (
+          <Dropdown name={type} items={item} key={type} currency={portfilioData.currencies.find((c) => c.id === currency)?.name} />
+        ))}
       </PortifolioContainer>
     </Container>
-  )
-}
+  );
+};
 
 export default Dashboard;

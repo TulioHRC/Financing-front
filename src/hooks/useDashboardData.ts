@@ -156,7 +156,11 @@ export const useDashboardData = (currency: {id: string}) => {
 
             actual_value += operation.price * operation.quantity * (investiments_by_id[operation.investiment_id]?.quotation ?? 0);
           } else {
-            actual_value += operation.price * operation.quantity;
+            const selled_quotation = 1 / (currencies.find(c => 
+              c.id === currency.id)?.quotation_in_BRL ?? 0) *
+              (currencies.find(c => 
+                c.id === operation.selled_currency_id)?.quotation_in_BRL ?? 0);
+            actual_value += operation.price * operation.quantity * selled_quotation;
           }
 
           let actualMonth = new Date(operation.date).toISOString().slice(0, 7);
