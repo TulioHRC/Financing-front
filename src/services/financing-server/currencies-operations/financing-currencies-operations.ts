@@ -1,5 +1,7 @@
 import { ApiInstance, RetrySettings } from '../../api-instance';
 import { FinancingCurrenciesOperationsGetResponseDTO } from './dto/financing-currencies-operations.get.response.dto';
+import { FinancingCurrenciesOperationsPostBodyDTO } from './dto/financing-currencies-operations.post.body.dto';
+import { FinancingCurrenciesOperationsPostResponseDTO } from './dto/financing-currencies-operations.post.response.dto';
 
 export class FinancingCurrenciesOperationsService {
   private readonly client: ApiInstance;
@@ -16,6 +18,21 @@ export class FinancingCurrenciesOperationsService {
     return (await this.client.get<FinancingCurrenciesOperationsGetResponseDTO>(
       ``,
       {},
+      {
+        settings: request.settings,
+      }
+    )).data;
+  }
+
+  async post(
+    request: {
+      body: FinancingCurrenciesOperationsPostBodyDTO;
+      settings?: RetrySettings;
+    }
+  ): Promise<FinancingCurrenciesOperationsPostResponseDTO> {
+    return (await this.client.post<FinancingCurrenciesOperationsPostBodyDTO, FinancingCurrenciesOperationsPostResponseDTO>(
+      ``,
+      request.body,
       {
         settings: request.settings,
       }

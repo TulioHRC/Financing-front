@@ -1,4 +1,4 @@
-export type FinancingInvestimentsPostResponseDTO = investimentDTO[]; 
+export type FinancingInvestimentsPostResponseDTO = investimentDTO; 
 
 interface investimentDTO {
   created_at: string,
