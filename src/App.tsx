@@ -7,6 +7,9 @@ import Data from "./pages/Data/Data";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import AddForm from "./pages/AddForm/AddForm";
 import Investiments from "./pages/Investiments/Investiments";
+import InvestimentsOperations from "./pages/InvestimentsOperations/InvestimentsOperations";
+import Currencies from "./pages/Currencies/Currencies";
+import CurrenciesOperations from "./pages/CurrenciesOperations/CurrenciesOperations";
 
 const AppContainer = styled.div`
   display: flex;
@@ -20,6 +23,9 @@ const App: React.FC = () => {
   const menuItems = [
     { label: "Dashboard", link: "/" },
     { label: "Investiments", link: "/investiments" },
+    { label: "Operations", link: "/investiments-operations" },
+    { label: "Currencies", link: "/currencies" },
+    { label: "Currencies Operations", link: "/currencies-operations" },
     { label: "Stats", link: "/stats" },
     { label: "Data", link: "/data" },
     { label: "Add", link: "/add-form" },
@@ -32,6 +38,9 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/investiments" element={<Investiments />} />
+          <Route path="/investiments-operations" element={<InvestimentsOperations />} />
+          <Route path="/currencies" element={<Currencies />} />
+          <Route path="/currencies-operations" element={<CurrenciesOperations />} />
           <Route path="/stats" element={<div>Hi</div>} />
           <Route path="/data" element={<Data />} />
           <Route path="/add-form" element={<AddForm />} />
