@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Data from "./pages/Data/Data";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import AddForm from "./pages/AddForm/AddForm";
+import Investiments from "./pages/Investiments/Investiments";
 
 const AppContainer = styled.div`
   display: flex;
@@ -18,6 +19,7 @@ const AppContainer = styled.div`
 const App: React.FC = () => {
   const menuItems = [
     { label: "Dashboard", link: "/" },
+    { label: "Investiments", link: "/investiments" },
     { label: "Stats", link: "/stats" },
     { label: "Data", link: "/data" },
     { label: "Add", link: "/add-form" },
@@ -29,6 +31,7 @@ const App: React.FC = () => {
         <Sidebar items={menuItems} />
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/investiments" element={<Investiments />} />
           <Route path="/stats" element={<div>Hi</div>} />
           <Route path="/data" element={<Data />} />
           <Route path="/add-form" element={<AddForm />} />
