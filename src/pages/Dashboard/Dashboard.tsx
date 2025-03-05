@@ -130,16 +130,9 @@ const Dashboard: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  // Calcular o valor investido total
   const investedValue = transformPortifolioDataInInvestedByType(portfilioData).reduce((acc, curr) => acc + curr.value, 0);
-
-  // Calcular o valor atual total
   const actualValue = transformPortifolioDataInActualByType(portfilioData).reduce((acc, curr) => acc + curr.value, 0);
-
-  // Calcular a porcentagem de crescimento
   const growthPercentage = ((actualValue - investedValue) / investedValue) * 100;
-
-  // Determinar se é lucro, perda ou neutro
   const isProfit = growthPercentage > 0;
   const isLoss = growthPercentage < 0;
 
