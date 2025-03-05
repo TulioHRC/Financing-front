@@ -1,28 +1,30 @@
 import { useState } from "react";
 import GenericTable from "../../components/generic-table/GenericTable";
+import { InvestimentDTO, useInvestimentsData } from "../../hooks/useInvestimentsData";
 
 const Investiments: React.FC = () => {
-  const [filters, setFilters] = useState({
-    id: '',
+  const { investimentsData, isLoading } = useInvestimentsData();
+  const [filters, setFilters] = useState<InvestimentDTO>({
     name: '',
-    type: '',
-    currency_id: '',
+    investiment_type: '',
     segment: '',
+    currency_name: '',
+    quantity: null,
+    average_price: null,
+    actual_price: null,
   });
-
-  const data = [
-    { id: '1', name: 'Item 1', type: 'Type A', currency_id: 'USD', segment: 'Segment X' },
-    { id: '2', name: 'Item 2', type: 'Type B', currency_id: 'EUR', segment: 'Segment Y' },
-    { id: '3', name: 'Item 3', type: 'Type C', currency_id: 'GBP', segment: 'Segment Z' },
-  ];
 
   const handleFilterChange = (field: keyof typeof filters, value: string) => {
     setFilters({ ...filters, [field]: value });
   };
 
+  if (isLoading || investimentsData === null) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <GenericTable
-      data={data}
+      data={investimentsData.investiments}
       filters={filters}
       onFilterChange={handleFilterChange}
     />

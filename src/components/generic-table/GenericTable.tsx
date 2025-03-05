@@ -3,7 +3,7 @@ import { FilterInput, Table, TableCell, TableContainer, TableHeader, TableRow } 
 
 interface GenericTableProps<T> {
   data: T[];
-  filters: Record<keyof T, string>;
+  filters: T;
   onFilterChange: (field: keyof T, value: string) => void;
 }
 
@@ -24,7 +24,7 @@ const GenericTable = <T extends Record<string, any>>({
 
   const filteredData = data.filter((item) =>
     Object.keys(filters).every((key) =>
-      String(item[key]).toLowerCase().includes(filters[key].toLowerCase())
+      filters[key] === null || String(item[key]).toLowerCase().includes(filters[key].toLowerCase())
     )
   );
 
