@@ -171,6 +171,41 @@ ${error.response?.data?.title ?? error.response?.data?.message ?? ""}
         }
     );
   }
+
+  public async delete<T>(
+    url: string,
+    options: {
+      bearerToken?: string;
+      settings?: RetrySettings;
+    }
+  ): Promise<AxiosResponse<T>> {
+    const config: AxiosRequestConfig = {
+      url,
+      method: "delete",
+    };
+
+    if (this.authorization)
+      config.headers = {
+        Authorization: "Bearer " + this.authorization.value,
+      };
+
+    if (options.bearerToken)
+      config.headers = {
+        Authorization: "Bearer " + options.bearerToken,
+      };
+
+    return await this.retryRequest(
+      config,
+      0,
+      options.settings
+        ? options.settings
+        : {
+          maxRetries: 0,
+          retryDelay: 0,
+          delayType: "linear",
+        }
+    );
+  }
 }
 
 export { ApiInstance };
