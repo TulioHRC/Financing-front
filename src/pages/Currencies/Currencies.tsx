@@ -1,10 +1,10 @@
 import { useState } from "react";
 import GenericTable from "../../components/generic-table/GenericTable";
-import { CurrencyOperationsDTO, useCurrenciesOperationsData } from "../../hooks/useCurrenciesOperationsData";
+import { CurrencyInvestimentsDTO, useCurrenciesData } from "../../hooks/useCurrenciesData";
 
 const Currencies: React.FC = () => {
-  const { data, isLoading } = useCurrenciesOperationsData();
-  const [filters, setFilters] = useState<CurrencyOperationsDTO>({
+  const { data, isLoading } = useCurrenciesData();
+  const [filters, setFilters] = useState<CurrencyInvestimentsDTO>({
     name: '',
     quotation: null,
     quantity: null,
@@ -22,7 +22,7 @@ const Currencies: React.FC = () => {
 
   return (
     <GenericTable
-      data={data}
+      data={data.currencies_investiments}
       filters={filters}
       onFilterChange={handleFilterChange}
     />

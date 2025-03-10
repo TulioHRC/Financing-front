@@ -3,6 +3,7 @@ import { FinancingApi } from "../services/financing-server/financing-api";
 import { getInvestimentOperations } from "./utils";
 
 export interface CurrencyInvestimentsDTO {
+  id?: string;
   name: string;
   quotation: number | null;
   quantity: number | null;
@@ -42,6 +43,7 @@ export const useCurrenciesData = () => {
         const currencies_investiments_by_id: { [currency_id: string]: CurrencyInvestimentsDTO } = {};
         currencies.forEach(c => {
           const currency_investment = {
+            id: c.id,
             name: c.name,
             quotation: c.quotation_in_BRL,
             quantity: 0,
