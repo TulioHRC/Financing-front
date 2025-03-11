@@ -1,4 +1,5 @@
 import { ApiInstance, RetrySettings } from '../../api-instance';
+import { FinancingOperationsDeleteResponseDTO } from './dto/financing-operations.delete.response.dto';
 import { FinancingOperationsResponseDTO } from './dto/financing-operations.get.response.dto';
 import { FinancingOperationsPostBodyDTO } from './dto/financing-operations.post.body.dto';
 import { FinancingOperationsPostResponseDTO } from './dto/financing-operations.post.response.dto';
@@ -33,6 +34,20 @@ export class FinancingOperationsService {
     return (await this.client.get<FinancingOperationsResponseDTO>(
       ``,
       {},
+      {
+        settings: request.settings,
+      }
+    )).data;
+  }
+
+  async deleteById(
+    request: {
+      id: string;
+      settings?: RetrySettings;
+    }
+  ): Promise<FinancingOperationsDeleteResponseDTO> {
+    return (await this.client.delete<FinancingOperationsDeleteResponseDTO>(
+      `${request.id}`,
       {
         settings: request.settings,
       }

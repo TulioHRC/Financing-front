@@ -5,12 +5,14 @@ interface GenericTableProps<T> {
   data: T[];
   filters: T;
   onFilterChange: (field: keyof T, value: string) => void;
+  onRowButtonClick?: (id: any) => void;
 }
 
 const GenericTable = <T extends Record<string, any>>({
   data,
   filters,
   onFilterChange,
+  onRowButtonClick,
 }: GenericTableProps<T>) => {
   const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'asc' | 'desc' } | null>(null);
 
@@ -58,7 +60,7 @@ const GenericTable = <T extends Record<string, any>>({
       <Table>
         <thead>
           <TableRow>
-            {Object.keys(data[0]).map((header) => (
+            {Object.keys(data[0]).filter(s => s !== 'id').map((header) => (
               <TableHeader key={header} onClick={() => handleSort(header as keyof T)}>
                 {header}
                 {sortConfig && sortConfig.key === header && (
@@ -66,14 +68,21 @@ const GenericTable = <T extends Record<string, any>>({
                 )}
               </TableHeader>
             ))}
+            <TableHeader></TableHeader>
           </TableRow>
         </thead>
         <tbody>
           {sortedData.map((row, rowIndex) => (
             <TableRow key={rowIndex}>
-              {Object.values(row).map((cell, cellIndex) => (
+              {Object.values({...row, id: null}).filter(v => v !== null).map((cell, cellIndex) => (
                 <TableCell key={cellIndex}>{String(cell)}</TableCell>
               ))}
+              {/* Renderiza o botão se o objeto tiver um `id` */}
+              {row.id && (
+                <TableCell>
+                  <button onClick={() => onRowButtonClick?.(row.id)}>Remove</button>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </tbody>

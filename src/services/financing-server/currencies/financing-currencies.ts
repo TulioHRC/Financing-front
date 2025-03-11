@@ -1,4 +1,5 @@
 import { ApiInstance, RetrySettings } from '../../api-instance';
+import { FinancingCurrenciesDeleteResponseDTO } from './dto/financing-currencies.delete.response.dto';
 import { FinancingCurrenciesGetResponseDTO } from './dto/financing-currencies.get.response.dto';
 import { FinancingCurrenciesPostBodyDTO } from './dto/financing-currencies.post.body.dto';
 import { FinancingCurrenciesPostResponseDTO } from './dto/financing-currencies.post.response.dto';
@@ -33,6 +34,20 @@ export class FinancingCurrenciesService {
     return (await this.client.post<FinancingCurrenciesPostBodyDTO, FinancingCurrenciesPostResponseDTO>(
       ``,
       request.body,
+      {
+        settings: request.settings,
+      }
+    )).data;
+  }
+
+  async deleteById(
+    request: {
+      id: string;
+      settings?: RetrySettings;
+    }
+  ): Promise<FinancingCurrenciesDeleteResponseDTO> {
+    return (await this.client.delete<FinancingCurrenciesDeleteResponseDTO>(
+      `${request.id}`,
       {
         settings: request.settings,
       }

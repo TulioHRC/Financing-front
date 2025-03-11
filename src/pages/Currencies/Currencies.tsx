@@ -1,10 +1,11 @@
 import { useState } from "react";
 import GenericTable from "../../components/generic-table/GenericTable";
-import { CurrencyOperationsDTO, useCurrenciesOperationsData } from "../../hooks/useCurrenciesOperationsData";
+import { CurrencyInvestimentsDTO, useCurrenciesData } from "../../hooks/useCurrenciesData";
+import { removeCurrencyById } from "../../hooks/functions/removeById";
 
 const Currencies: React.FC = () => {
-  const { data, isLoading } = useCurrenciesOperationsData();
-  const [filters, setFilters] = useState<CurrencyOperationsDTO>({
+  const { data, isLoading, refetch } = useCurrenciesData();
+  const [filters, setFilters] = useState<CurrencyInvestimentsDTO>({
     name: '',
     quotation: null,
     quantity: null,
@@ -16,17 +17,25 @@ const Currencies: React.FC = () => {
     setFilters({ ...filters, [field]: value });
   };
 
+  const handleButtonClick = async (id: string) => {
+    const res = await removeCurrencyById(id);
+    console.log(`deleted: ${res}`);
+
+    refetch();
+  };
+
   if (isLoading || data === null) {
     return <div>Loading...</div>;
   }
 
   return (
     <GenericTable
-      data={data}
+      data={data.currencies_investiments}
       filters={filters}
       onFilterChange={handleFilterChange}
+      onRowButtonClick={handleButtonClick}
     />
   );
 };
 
-export default Currencies;
+export default Currencies;  

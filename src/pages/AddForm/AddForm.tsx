@@ -115,7 +115,7 @@ const AddForm: React.FC = () => {
       }
     });
 
-    setInvestimentFields(defaultInvestimentFieldsValue);
+    setCurrencyFields(defaultCurrencyFieldsValue);
     refetch();
   };
 
