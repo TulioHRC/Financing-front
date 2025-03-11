@@ -137,7 +137,7 @@ export const useDashboardData = (currency: {id: string}) => {
           data.investiments.push(investimentData);
           investiments_by_id[investiment.id] = investimentData;
 
-          if (currencies_investiments_by_id[investimentData.currency_id]){
+          if (currencies_investiments_by_id[investimentData.currency_id] && investimentData.quantity > 0){
             currencies_investiments_by_id[investimentData.currency_id].used_quantity += investimentData.average_price * investimentData.quantity;
           }
         });
