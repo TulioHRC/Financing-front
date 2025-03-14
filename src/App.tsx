@@ -10,6 +10,7 @@ import Investiments from "./pages/Investiments/Investiments";
 import InvestimentsOperations from "./pages/InvestimentsOperations/InvestimentsOperations";
 import Currencies from "./pages/Currencies/Currencies";
 import CurrenciesOperations from "./pages/CurrenciesOperations/CurrenciesOperations";
+import Dividends from "./pages/Dividends/Dividends";
 
 const AppContainer = styled.div`
   display: flex;
@@ -24,6 +25,7 @@ const App: React.FC = () => {
     { label: "Dashboard", link: "/" },
     { label: "Investiments", link: "/investiments" },
     { label: "Operations", link: "/investiments-operations" },
+    { label: "Dividends", link: "/dividends" },
     { label: "Currencies", link: "/currencies" },
     { label: "Currencies Operations", link: "/currencies-operations" },
     { label: "Stats", link: "/stats" },
@@ -39,6 +41,7 @@ const App: React.FC = () => {
           <Route path="/" element={<Dashboard />} />
           <Route path="/investiments" element={<Investiments />} />
           <Route path="/investiments-operations" element={<InvestimentsOperations />} />
+          <Route path="/dividends" element={<Dividends />} />
           <Route path="/currencies" element={<Currencies />} />
           <Route path="/currencies-operations" element={<CurrenciesOperations />} />
           <Route path="/stats" element={<div>Hi</div>} />
