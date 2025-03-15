@@ -14,6 +14,10 @@ const GenericTable = <T extends Record<string, any>>({
   onFilterChange,
   onRowButtonClick,
 }: GenericTableProps<T>) => {
+  if (data.length === 0) return (
+    <p>No data found.</p>
+  )
+
   const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'asc' | 'desc' } | null>(null);
 
   const handleSort = (key: keyof T) => {
@@ -77,7 +81,6 @@ const GenericTable = <T extends Record<string, any>>({
               {Object.values({...row, id: null}).filter(v => v !== null).map((cell, cellIndex) => (
                 <TableCell key={cellIndex}>{String(cell)}</TableCell>
               ))}
-              {/* Renderiza o botão se o objeto tiver um `id` */}
               {row.id && (
                 <TableCell>
                   <button onClick={() => onRowButtonClick?.(row.id)}>Remove</button>

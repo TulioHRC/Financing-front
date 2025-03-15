@@ -33,9 +33,11 @@ export const useDividendsData = () => {
       const dividendsData : DividendsDataDTO = dividends.map((d) => {
         const investiment = investimentById[d.investiment_id];
 
+        console.log(d)
+
         return {
           investimentName: investiment?.name?? 'Unknown',
-          paymentDate: d.date.toDateString(),
+          paymentDate: d.date,
           value: d.value,
           valueAfterFees: d.value_after_fees,
           quantity: d.investiment_quantity,
