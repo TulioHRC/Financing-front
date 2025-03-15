@@ -19,7 +19,15 @@ const defaultCurrencyFieldsValue = {
   selled_currency_name: '',
   selled_currency_id: '',
   quantity: 0,
-}
+};
+
+const defaultDividendFieldsValue = {
+  investiment_id: '',
+  date: '',
+  investiment_quantity: 0,
+  value: 0,
+  value_after_fees: 0,
+};
 
 const AddForm: React.FC = () => {
   const { data, isLoading, refetch } = useAddFormData();
@@ -44,6 +52,7 @@ const AddForm: React.FC = () => {
     quantity: number;
     date?: Date;
   }>(defaultCurrencyFieldsValue);
+  const [dividendFields, setDividendFields] = useState(defaultDividendFieldsValue);
 
   if (isLoading === true) {
     return <div>Loading...</div>;
@@ -56,7 +65,7 @@ const AddForm: React.FC = () => {
   const handleInvestimentSubmit = async () => {
     const financingApi = new FinancingApi();
 
-    const data = {...investimentFields};
+    const data = { ...investimentFields };
 
     if (data.id === undefined) {
       const res = await financingApi.investiments.post({
@@ -87,12 +96,12 @@ const AddForm: React.FC = () => {
   const handleCurrencySubmit = async () => {
     const financingApi = new FinancingApi();
 
-    const data = {...currencyFields};
+    const data = { ...currencyFields };
 
     if (data.selled_currency_id === undefined) {
       console.log("Please provide an existing selled currency");
       // TODO: alert
-    } 
+    }
 
     if (data.bought_currency_id === '') {
       const res = await financingApi.currencies.post({
@@ -119,6 +128,23 @@ const AddForm: React.FC = () => {
     refetch();
   };
 
+  const handleDividendSubmit = async () => {
+    const financingApi = new FinancingApi();
+
+    await financingApi.dividends.post({
+      body: {
+        investiment_id: dividendFields.investiment_id,
+        date: new Date(dividendFields.date),
+        investiment_quantity: dividendFields.investiment_quantity,
+        value: dividendFields.value,
+        value_after_fees: dividendFields.value_after_fees,
+      }
+    });
+
+    setDividendFields(defaultDividendFieldsValue);
+    refetch();
+  };
+
   return (
     <FormContainer>
       <OptionContainer>
@@ -133,6 +159,12 @@ const AddForm: React.FC = () => {
           onClick={() => handleOptionClick('currency')}
         >
           Currency
+        </OptionButton>
+        <OptionButton
+          className={type === 'dividend' ? 'active' : ''}
+          onClick={() => handleOptionClick('dividend')}
+        >
+          Dividend
         </OptionButton>
       </OptionContainer>
 
@@ -409,8 +441,107 @@ const AddForm: React.FC = () => {
           </>
         )
       }
+
+      {data && type === 'dividend' && (
+        <>
+          <InputContainer>
+            <StyledInput
+              type="text"
+              id="dividend-investiment"
+              placeholder=" "
+              list="investiments"
+              value={dividendFields.investiment_id}
+              onChange={(e) =>
+                setDividendFields((prev) => ({
+                  ...prev,
+                  investiment_id: data.investiments.find((i) => i.name === e.target.value)?.id ?? '',
+                }))
+              }
+            />
+            <Label htmlFor="dividend-investiment">Investiment</Label>
+            <datalist id="investiments">
+              {data.investiments
+                .sort((a, b) => (a.name > b.name ? 1 : -1))
+                .map((investiment) => (
+                  <option key={investiment.id} value={investiment.name}>{investiment.name}</option>
+                ))}
+            </datalist>
+          </InputContainer>
+          {dividendFields.investiment_id !== '' && (
+            <InputContainer>
+              <StyledInput
+                type="date"
+                id="dividend-date"
+                placeholder=" "
+                value={dividendFields.date}
+                onChange={(e) =>
+                  setDividendFields((prev) => ({
+                    ...prev,
+                    date: e.target.value,
+                  }))
+                }
+              />
+              <Label htmlFor="dividend-date">Date</Label>
+            </InputContainer>
+          )}
+          {dividendFields.date !== '' && (
+            <InputContainer>
+              <StyledInput
+                type="number"
+                id="dividend-quantity"
+                placeholder=" "
+                value={dividendFields.investiment_quantity}
+                onChange={(e) =>
+                  setDividendFields((prev) => ({
+                    ...prev,
+                    investiment_quantity: e.target.valueAsNumber,
+                  }))
+                }
+              />
+              <Label htmlFor="dividend-quantity">Quantity</Label>
+            </InputContainer>
+          )}
+          {dividendFields.investiment_quantity !== 0 && (
+            <InputContainer>
+              <StyledInput
+                type="number"
+                id="dividend-value"
+                placeholder=" "
+                value={dividendFields.value}
+                onChange={(e) =>
+                  setDividendFields((prev) => ({
+                    ...prev,
+                    value: e.target.valueAsNumber,
+                  }))
+                }
+              />
+              <Label htmlFor="dividend-value">Value</Label>
+            </InputContainer>
+          )}
+          {dividendFields.value !== 0 && (
+            <InputContainer>
+              <StyledInput
+                type="number"
+                id="dividend-value-after-fees"
+                placeholder=" "
+                value={dividendFields.value_after_fees}
+                onChange={(e) =>
+                  setDividendFields((prev) => ({
+                    ...prev,
+                    value_after_fees: e.target.valueAsNumber,
+                  }))
+                }
+              />
+              <Label htmlFor="dividend-value-after-fees">Value After Fees</Label>
+            </InputContainer>
+          )}
+          {dividendFields.value_after_fees !== 0 && (
+            <SubmitButton onClick={handleDividendSubmit}>Submit</SubmitButton>
+          )}
+        </>
+      )}
     </FormContainer>
-  )
+  );
 };
 
 export default AddForm;
