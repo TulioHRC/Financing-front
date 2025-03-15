@@ -4,6 +4,7 @@ import { removeDividendById } from "../../hooks/functions/removeById";
 import { DividendsDTO, useDividendsData } from "../../hooks/useDividendsData";
 import { DividendsContainer, HiddenInput, UploadButton } from "./styles/styled-components";
 import * as XLSX from "xlsx";
+import { readDividendsB3Sheet } from "../../hooks/readDividendsB3Sheet";
 
 const Dividends: React.FC = () => {
   const { data, isLoading, refetch } = useDividendsData();
@@ -16,6 +17,8 @@ const Dividends: React.FC = () => {
     quantity: null,
     totalValue: null,
   });
+
+  console.log(data)
 
   const handleFilterChange = (field: keyof typeof filters, value: string) => {
     setFilters({ ...filters, [field]: value });
@@ -40,7 +43,7 @@ const Dividends: React.FC = () => {
           const worksheet = workbook.Sheets[firstSheetName];
           const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-          console.log(jsonData);
+          readDividendsB3Sheet(jsonData as string[][]);
         }
       };
       reader.readAsBinaryString(file);
@@ -50,6 +53,8 @@ const Dividends: React.FC = () => {
   if (isLoading || data === null) {
     return <div>Loading...</div>;
   }
+
+  console.log(data)
 
   return (
     <DividendsContainer>

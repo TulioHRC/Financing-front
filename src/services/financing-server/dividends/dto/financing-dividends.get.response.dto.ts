@@ -8,6 +8,6 @@ interface DividendsDTO {
   investiment_id: string;
   value: number;
   value_after_fees: number;
-  date: Date;
+  date: string;
   investiment_quantity: number;
 }
