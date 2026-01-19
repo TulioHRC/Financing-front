@@ -13,8 +13,10 @@ const Data: React.FC = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   const openUpdateModal = () => setIsUpdateModalOpen(true);
-  const closeUpdateModal = () => setIsUpdateModalOpen(false);
-
+  const closeUpdateModal = () => {
+    setIsUpdateModalOpen(false);
+    refetch();
+  };
 
   if (isLoading || data === null) {
     return <div>Loading...</div>;

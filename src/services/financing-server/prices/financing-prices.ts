@@ -1,6 +1,7 @@
 import { ApiInstance, RetrySettings } from '../../api-instance';
 import { FinancingPricesDeleteResponseDTO } from './dto/financing-prices.delete.response.dto';
 import { FinancingPricesResponseDTO } from './dto/financing-prices.get.response.dto';
+import { FinancingPricesGetFromExternalApiResponseDTO } from './dto/financing-prices.getFromExternalApi.response.dto';
 import { FinancingPricesPostBodyDTO } from './dto/financing-prices.post.body.dto';
 import { FinancingPricesPostResponseDTO } from './dto/financing-prices.post.response.dto';
 
@@ -48,6 +49,23 @@ export class FinancingPricesService {
   ): Promise<FinancingPricesDeleteResponseDTO> {
     return (await this.client.delete<FinancingPricesDeleteResponseDTO>(
       `${request.id}`,
+      {
+        settings: request.settings,
+      }
+    )).data;
+  }
+
+  async getFromExternalApi(
+    request: {
+      params: {
+        investimentId: string;
+      };
+      settings?: RetrySettings;
+    }
+  ): Promise<FinancingPricesGetFromExternalApiResponseDTO> {
+    return (await this.client.get<FinancingPricesGetFromExternalApiResponseDTO>(
+      `/external-api`,
+      request.params,
       {
         settings: request.settings,
       }
