@@ -7,3 +7,14 @@ export const Container = styled.div`
   gap: 20px;
   padding: 20px;
 `;
+
+export const PriceDiv = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 40%;
+  justify-content: space-between;
+`;
+
+export const Button = styled.button`
+  cursor: pointer;
+`;

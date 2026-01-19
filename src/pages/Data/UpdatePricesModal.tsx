@@ -1,0 +1,88 @@
+import {
+  Modal,
+  Box,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Button,
+  Typography,
+} from "@mui/material";
+
+interface UpdatePricesModalProps {
+  open: boolean;
+  onClose: () => void;
+  investments: Array<{
+    id: string;
+    name: string;
+    type: string;
+    price: number | null;
+    status?: "ACTIVE" | "INACTIVE";
+  }>;
+}
+
+export const UpdatePricesModal: React.FC<UpdatePricesModalProps> = ({
+  open,
+  onClose,
+  investments,
+}) => {
+  return (
+    <Modal open={open} onClose={onClose}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "80%",
+          maxHeight: "80vh",
+          bgcolor: "background.paper",
+          borderRadius: 2,
+          boxShadow: 24,
+          p: 3,
+          overflowY: "auto",
+        }}
+      >
+        <Typography variant="h6" mb={2}>
+          Investments status
+        </Typography>
+
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Type</TableCell>
+              <TableCell align="right">Price</TableCell>
+              <TableCell>Status</TableCell>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {investments.map((inv) => (
+              <TableRow key={inv.id}>
+                <TableCell>{inv.name}</TableCell>
+                <TableCell>{inv.type}</TableCell>
+                <TableCell align="right">
+                  {inv.price ?? "—"}
+                </TableCell>
+                <TableCell>
+                  {inv.status ?? "UNKNOWN"}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        <Box mt={3} display="flex" justifyContent="flex-end" gap={1}>
+          <Button variant="outlined" onClick={onClose}>
+            Close
+          </Button>
+          <Button variant="contained">
+            Update via API
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
+  );
+};
