@@ -59,14 +59,14 @@ export const UpdatePricesModal: React.FC<UpdatePricesModalProps> = ({
         await financingApiService.prices.post({
           body: {
             investiment_id: investment.id,
-            price: externalValue.quotation,
+            price: externalValue.value,
           },
         });
 
         setInvestments((current) =>
           current.map((inv) =>
             inv.id === investment.id
-              ? { ...inv, status: "UPDATED", price: externalValue.quotation }
+              ? { ...inv, status: "UPDATED", price: externalValue.value }
               : inv
           )
         );

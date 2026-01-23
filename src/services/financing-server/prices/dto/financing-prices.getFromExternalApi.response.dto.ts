@@ -1,4 +1,4 @@
 export interface FinancingPricesGetFromExternalApiResponseDTO {
-  referenceDate: string;
-  quotation: number;
+  value: number;
+  isNewPrice: boolean
 };
