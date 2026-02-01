@@ -6,6 +6,7 @@ interface GenericTableProps<T> {
   filters: T;
   onFilterChange: (field: keyof T, value: string) => void;
   onRowButtonClick?: (id: any) => void;
+  buttonText?: string;
 }
 
 const GenericTable = <T extends Record<string, any>>({
@@ -13,12 +14,13 @@ const GenericTable = <T extends Record<string, any>>({
   filters,
   onFilterChange,
   onRowButtonClick,
+  buttonText="Remove"
 }: GenericTableProps<T>) => {
+  const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'asc' | 'desc' } | null>(null);
+
   if (data.length === 0) return (
     <p>No data found.</p>
   )
-
-  const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'asc' | 'desc' } | null>(null);
 
   const handleSort = (key: keyof T) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -83,7 +85,7 @@ const GenericTable = <T extends Record<string, any>>({
               ))}
               {row.id && (
                 <TableCell>
-                  <button onClick={() => onRowButtonClick?.(row.id)}>Remove</button>
+                  <button onClick={() => onRowButtonClick?.(row.id)}>{buttonText}</button>
                 </TableCell>
               )}
             </TableRow>

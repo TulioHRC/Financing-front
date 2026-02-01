@@ -3,6 +3,7 @@ import { FinancingCurrenciesDeleteResponseDTO } from './dto/financing-currencies
 import { FinancingCurrenciesGetResponseDTO } from './dto/financing-currencies.get.response.dto';
 import { FinancingCurrenciesPostBodyDTO } from './dto/financing-currencies.post.body.dto';
 import { FinancingCurrenciesPostResponseDTO } from './dto/financing-currencies.post.response.dto';
+import { FinancingCurrenciesPutByIdBodyDTO } from './dto/financing-currencies.putById.body.dto';
 
 export class FinancingCurrenciesService {
   private readonly client: ApiInstance;
@@ -48,6 +49,22 @@ export class FinancingCurrenciesService {
   ): Promise<FinancingCurrenciesDeleteResponseDTO> {
     return (await this.client.delete<FinancingCurrenciesDeleteResponseDTO>(
       `${request.id}`,
+      {
+        settings: request.settings,
+      }
+    )).data;
+  }
+
+  async putById(
+    request: {
+      id: string;
+      body: FinancingCurrenciesPutByIdBodyDTO;
+      settings?: RetrySettings;
+    }
+  ): Promise<FinancingCurrenciesPostResponseDTO> {
+    return (await this.client.put<FinancingCurrenciesPutByIdBodyDTO, FinancingCurrenciesPostResponseDTO>(
+      `${request.id}`,
+      request.body,
       {
         settings: request.settings,
       }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import GenericTable from "../../components/generic-table/GenericTable";
 import { CurrencyInvestimentsDTO, useCurrenciesData } from "../../hooks/useCurrenciesData";
-import { removeCurrencyById } from "../../hooks/functions/removeById";
+import { updateCurrencyById } from "../../hooks/functions/updateById";
 
 const Currencies: React.FC = () => {
   const { data, isLoading, refetch } = useCurrenciesData();
@@ -18,10 +18,14 @@ const Currencies: React.FC = () => {
   };
 
   const handleButtonClick = async (id: string) => {
-    const res = await removeCurrencyById(id);
-    console.log(`deleted: ${res}`);
-
-    refetch();
+    const newQuotation = Number(prompt("New Quotation:"));
+    console.log(newQuotation, typeof newQuotation)
+    if (newQuotation) {
+      const res = await updateCurrencyById(id, {quotation_in_BRL: newQuotation});
+      console.log(`updated: ${res}`);
+  
+      refetch();
+    }
   };
 
   if (isLoading || data === null) {
@@ -34,6 +38,7 @@ const Currencies: React.FC = () => {
       filters={filters}
       onFilterChange={handleFilterChange}
       onRowButtonClick={handleButtonClick}
+      buttonText="Edit"
     />
   );
 };
