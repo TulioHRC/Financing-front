@@ -1,6 +1,24 @@
 import { useState } from "react";
 import { usePricesData } from "../../hooks/usePricesData";
-import { Button, Container, PriceDiv } from "./styles/styled-components";
+import {
+  Container,
+  HeaderSection,
+  TitleContainer,
+  Title,
+  Subtitle,
+  Button,
+  GridContainer,
+  CategoryCard,
+  CategoryTitle,
+  InvestmentList,
+  PriceRow,
+  InvestmentName,
+  ValueActionContainer,
+  PriceValue,
+  ActionButton,
+  EditForm,
+  PriceInput,
+} from "./styles/styled-components";
 import { FinancingApi } from "../../services/financing-server/financing-api";
 import { Toaster } from "react-hot-toast";
 import toast from "react-hot-toast";
@@ -19,7 +37,11 @@ const Data: React.FC = () => {
   };
 
   if (isLoading || data === null) {
-    return <div>Loading...</div>;
+    return (
+      <Container style={{ justifyContent: "center", alignItems: "center", height: "80vh" }}>
+        <Subtitle>Loading investments data...</Subtitle>
+      </Container>
+    );
   }
 
   const groupedInvestments = data.investiments.reduce((acc, investment) => {
@@ -48,70 +70,84 @@ const Data: React.FC = () => {
       });
 
       refetch();
-
       toast.success("Price updated successfully");
     } catch {
       toast.error("Failed to update price");
     }
   };
 
+  const handleCancel = () => {
+    setEditingId(null);
+  };
+
   return (
     <Container>
-      <Button onClick={openUpdateModal}>
-        Update everything via API
-      </Button>
-      {Object.entries(groupedInvestments).map(([type, investments]) => (
-        <div key={type}>
-          <h2>{type}</h2>
-          <ul>
-            {investments.map((investment) => (
-              <PriceDiv key={investment.id}>
-                {investment.name} -{" "}
-                {editingId === investment.id ? (
-                  <>
-                    <input
-                      type="text"
-                      value={newPrice}
-                      onChange={(e) => setNewPrice(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' ? handleSave(investment.id) : null}
-                    />
-                    <button style={{
-                      padding: "5px 10px",
-                      backgroundColor: "#007bff",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "5px",
-                      cursor: "pointer",
-                    }} onClick={() => handleSave(investment.id)}>Save</button>
-                  </>
-                ) : (
-                  <>
-                    {investment.price !== null ? `${investment.price}` : 'Not available'}
-                    <button
-                      style={{
-                        padding: "5px 10px",
-                        backgroundColor: "#007bff",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                      }}
-                      onClick={() =>
-                        handleEditClick(
-                          investment.id,
-                          investment.price !== null ? investment.price.toString() : ""
-                        )
-                      }
-                    >
-                      Edit
-                    </button>
-                  </>
-                )}
-              </PriceDiv>
-            ))}
-          </ul>
-        </div>
-      ))}
+      <HeaderSection>
+        <TitleContainer>
+          <Title>Investment Prices</Title>
+          <Subtitle>Manage and update prices for all current assets</Subtitle>
+        </TitleContainer>
+        <Button onClick={openUpdateModal}>
+          <i className="fa-solid fa-arrows-rotate" />
+          Update everything via API
+        </Button>
+      </HeaderSection>
+
+      <GridContainer>
+        {Object.entries(groupedInvestments).map(([type, investments]) => (
+          <CategoryCard key={type}>
+            <CategoryTitle>{type}</CategoryTitle>
+            <InvestmentList>
+              {investments.map((investment) => (
+                <PriceRow key={investment.id}>
+                  {editingId === investment.id ? (
+                    <EditForm onSubmit={(e) => { e.preventDefault(); handleSave(investment.id); }}>
+                      <InvestmentName style={{ marginRight: "8px" }}>{investment.name}</InvestmentName>
+                      <PriceInput
+                        type="number"
+                        step="any"
+                        value={newPrice}
+                        onChange={(e) => setNewPrice(e.target.value)}
+                        autoFocus
+                      />
+                      <ActionButton variant="primary" type="submit">
+                        Save
+                      </ActionButton>
+                      <ActionButton
+                        type="button"
+                        style={{ border: "none", color: "#666" }}
+                        onClick={handleCancel}
+                      >
+                        Cancel
+                      </ActionButton>
+                    </EditForm>
+                  ) : (
+                    <>
+                      <InvestmentName>{investment.name}</InvestmentName>
+                      <ValueActionContainer>
+                        <PriceValue hasValue={investment.price !== null}>
+                          {investment.price !== null ? `$ ${investment.price.toFixed(2)}` : "N/A"}
+                        </PriceValue>
+                        <ActionButton
+                          onClick={() =>
+                            handleEditClick(
+                              investment.id,
+                              investment.price !== null ? investment.price.toString() : ""
+                            )
+                          }
+                        >
+                          Edit
+                        </ActionButton>
+                      </ValueActionContainer>
+                    </>
+                  )}
+                </PriceRow>
+              ))}
+            </InvestmentList>
+          </CategoryCard>
+        ))}
+      </GridContainer>
+
       <Toaster position="bottom-right" />
       <UpdatePricesModal
         open={isUpdateModalOpen}

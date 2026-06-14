@@ -11,6 +11,7 @@ import InvestimentsOperations from "./pages/InvestimentsOperations/InvestimentsO
 import Currencies from "./pages/Currencies/Currencies";
 import CurrenciesOperations from "./pages/CurrenciesOperations/CurrenciesOperations";
 import Dividends from "./pages/Dividends/Dividends";
+import Stats from "./pages/Stats/Stats";
 
 const AppContainer = styled.div`
   display: flex;
@@ -44,7 +45,7 @@ const App: React.FC = () => {
           <Route path="/dividends" element={<Dividends />} />
           <Route path="/currencies" element={<Currencies />} />
           <Route path="/currencies-operations" element={<CurrenciesOperations />} />
-          <Route path="/stats" element={<div>Hi</div>} />
+          <Route path="/stats" element={<Stats />} />
           <Route path="/data" element={<Data />} />
           <Route path="/add-form" element={<AddForm />} />
         </Routes>

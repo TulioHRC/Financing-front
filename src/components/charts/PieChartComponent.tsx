@@ -14,10 +14,21 @@ const templateData : PieChartData = [
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#FF9033"];
 
+interface PieChartComponentProps {
+  title?: string;
+  data?: PieChartData;
+  legendLayout?: "horizontal" | "vertical";
+  legendAlign?: "center" | "left" | "right";
+  legendVerticalAlign?: "top" | "middle" | "bottom";
+}
+
 const PieChartComponent = ({
   title = "Default Title",
-  data = templateData
-} : {title?: string, data?: PieChartData}) => {
+  data = templateData,
+  legendLayout = "horizontal",
+  legendAlign = "center",
+  legendVerticalAlign = "bottom",
+}: PieChartComponentProps) => {
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
   const dataWithPercentage = data.map((item) => ({
@@ -25,13 +36,15 @@ const PieChartComponent = ({
     percentage: ((item.value / total) * 100).toFixed(1) + "%",
   }));
 
+  const chartWidth = legendLayout === "vertical" ? 520 : 400;
+
   return (
-    <div style={{ textAlign: "center" }}>
+    <div style={{ textAlign: "center", display: "inline-block" }}>
       <h2>{ title }</h2>
-      <PieChart width={400} height={300}>
+      <PieChart width={chartWidth} height={300}>
         <Pie
           data={dataWithPercentage}
-          cx={200}
+          cx={legendLayout === "vertical" ? 160 : 200}
           cy={150}
           innerRadius={20}
           outerRadius={80}
@@ -43,7 +56,11 @@ const PieChartComponent = ({
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
-        <Legend />
+        <Legend
+          layout={legendLayout}
+          align={legendAlign}
+          verticalAlign={legendVerticalAlign}
+        />
       </PieChart>
     </div>
   );
