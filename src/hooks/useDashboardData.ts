@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
-import { FinancingApi } from "../services/financing-server/financing-api";
-import { getInvestimentOperations, getOldestInvestimentDate } from "./utils";
+import { useState, useEffect } from "react";
+import { financingApi } from "../services/financing-server/financing-api";
+import { convertQuotation, getInvestimentOperations, getOldestInvestimentDate, nextMonthKey } from "./utils";
 
 interface InvestimentsDTO {
   id: string,
@@ -40,10 +40,9 @@ export const useDashboardData = (currency: {id: string}) => {
   const [portfilioData, setPortfilioData] = useState<DashboardDataDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
     
-  useMemo(() => {
+  useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const financingApi = new FinancingApi();
       try {
         const [currencies, currenciesOperations, investiments, operations, prices] = await Promise.all([
           financingApi.currencies.get({}),
@@ -75,27 +74,15 @@ export const useDashboardData = (currency: {id: string}) => {
 
         while (oldestInvestmentMonth <= currentMonth) {
           data.patrimony_by_month[oldestInvestmentMonth] = 0;
-
-          const [year, month] = oldestInvestmentMonth.split('-').map(Number);
-          if (month === 12) {
-            oldestInvestmentMonth = `${year + 1}-01`;
-          } else {
-            oldestInvestmentMonth = `${year}-${String(month + 1).padStart(2, '0')}`;
-          }
+          oldestInvestmentMonth = nextMonthKey(oldestInvestmentMonth);
         }
 
         const investiments_by_id : {[key: string]: InvestimentsDTO} = {};
         const currencies_investiments_by_id : {[currency_id: string]: CurrencyInvestimentsDTO} = {};
 
         currenciesOperations.forEach(op => {
-          const quotation = 1 / (currencies.find(c => 
-            c.id === currency.id)?.quotation_in_BRL ?? 0) *
-            (currencies.find(c => 
-              c.id === op.bought_currency_id)?.quotation_in_BRL ?? 0);
-          const selled_quotation = 1 / (currencies.find(c => 
-            c.id === currency.id)?.quotation_in_BRL ?? 0) *
-            (currencies.find(c => 
-              c.id === op.selled_currency_id)?.quotation_in_BRL ?? 0);
+          const quotation = convertQuotation(currencies, currency.id, op.bought_currency_id);
+          const selled_quotation = convertQuotation(currencies, currency.id, op.selled_currency_id);
           const currency_id = op.bought_currency_id;
           const currency_investment = currencies_investiments_by_id[currency_id]?? {
             id: currency_id,
@@ -115,11 +102,8 @@ export const useDashboardData = (currency: {id: string}) => {
         })
 
         investiments.forEach(investiment => {
-          const quotation = 1 / (currencies.find(c => 
-            c.id === currency.id)?.quotation_in_BRL ?? 0) *
-            (currencies.find(c => 
-              c.id === investiment.currency_id)?.quotation_in_BRL ?? 0);
-          
+          const quotation = convertQuotation(currencies, currency.id, investiment.currency_id);
+
           const operationsByInvestiment = getInvestimentOperations(investiment.id, operations);
 
           const investimentData = {
@@ -152,14 +136,11 @@ export const useDashboardData = (currency: {id: string}) => {
         let actual_value = 0;
         for (const operation of sorted_operations_by_date) {
           if ('investiment_id' in operation) {
-            if (investiments_by_id[operation.investiment_id].currency_id !== import.meta.env.VITE_MAIN_CURRENCY_ID) continue;
+            if (investiments_by_id[operation.investiment_id]?.currency_id !== import.meta.env.VITE_MAIN_CURRENCY_ID) continue;
 
             actual_value += operation.price * operation.quantity * (investiments_by_id[operation.investiment_id]?.quotation ?? 0);
           } else {
-            const selled_quotation = 1 / (currencies.find(c => 
-              c.id === currency.id)?.quotation_in_BRL ?? 0) *
-              (currencies.find(c => 
-                c.id === operation.selled_currency_id)?.quotation_in_BRL ?? 0);
+            const selled_quotation = convertQuotation(currencies, currency.id, operation.selled_currency_id);
             actual_value += operation.price * operation.quantity * selled_quotation;
           }
 
@@ -168,13 +149,7 @@ export const useDashboardData = (currency: {id: string}) => {
           // Sum in all the next months also
           while (actualMonth <= currentMonth) {
             data.patrimony_by_month[actualMonth] = actual_value;
-  
-            const [year, month] = actualMonth.split('-').map(Number);
-            if (month === 12) {
-              actualMonth = `${year + 1}-01`;
-            } else {
-              actualMonth = `${year}-${String(month + 1).padStart(2, '0')}`;
-            }
+            actualMonth = nextMonthKey(actualMonth);
           }
         }
 

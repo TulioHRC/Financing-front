@@ -89,8 +89,8 @@ export const KpiSubtext = styled.span<{ trend?: "up" | "down" | "neutral" }>`
   font-weight: ${theme.font.weight.medium};
   color: ${props => 
     props.trend === "up" ? theme.color.success[800] : 
-    props.trend === "down" ? theme.color.error[800] : 
-    theme.color.neutralBlue[600]};
+      props.trend === "down" ? theme.color.error[800] : 
+        theme.color.neutralBlue[600]};
   display: flex;
   align-items: center;
   gap: 4px;
@@ -160,12 +160,12 @@ export const Badge = styled.span<{ variant?: string }>`
   border-radius: 4px;
   background-color: ${props => 
     props.variant === "Stock" ? theme.color.highlight[100] : 
-    props.variant === "FII" ? theme.color.secondaryBlue[50] :
-    theme.color.neutralBlue[300]};
+      props.variant === "FII" ? theme.color.secondaryBlue[50] :
+        theme.color.neutralBlue[300]};
   color: ${props => 
     props.variant === "Stock" ? theme.color.highlight[700] : 
-    props.variant === "FII" ? theme.color.secondaryBlue[700] :
-    theme.color.neutralBlue[800]};
+      props.variant === "FII" ? theme.color.secondaryBlue[700] :
+        theme.color.neutralBlue[800]};
 `;
 
 export const ProgressWrapper = styled.div`

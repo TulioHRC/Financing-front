@@ -1,5 +1,5 @@
-import { useState, useMemo, useCallback } from "react";
-import { FinancingApi } from "../services/financing-server/financing-api";
+import { useState, useEffect, useCallback } from "react";
+import { financingApi } from "../services/financing-server/financing-api";
 
 export interface InvestimentOperationsDTO {
   id?: string;
@@ -18,7 +18,6 @@ export const useInvestimentsOperationsData = () => {
     
   const fetchData = useCallback(async () => {
     setIsLoading(true);
-    const financingApi = new FinancingApi();
     try {
       const [currencies, investiments, operations] = await Promise.all([
         financingApi.currencies.get({}),
@@ -65,7 +64,7 @@ export const useInvestimentsOperationsData = () => {
     }
   }, []);
 
-  useMemo(() => {
+  useEffect(() => {
     fetchData();
   }, [fetchData]);
 

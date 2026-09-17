@@ -1,6 +1,17 @@
-import { useState, useMemo, useCallback } from "react";
-import { FinancingApi } from "../services/financing-server/financing-api";
+import { useState, useEffect, useCallback } from "react";
+import { financingApi } from "../services/financing-server/financing-api";
 import { getInvestimentOperations } from "./utils";
+
+interface InvestimentDataDTO {
+  id: string;
+  name: string;
+  investiment_type: string;
+  segment: string;
+  currency_id: string;
+  quantity: number;
+  average_price: number;
+  actual_price: number;
+}
 
 export interface CurrencyInvestimentsDTO {
   id?: string;
@@ -21,7 +32,6 @@ export const useCurrenciesData = () => {
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
-    const financingApi = new FinancingApi();
     try {
       const [currencies, currenciesOperations, investiments, operations, prices] = await Promise.all([
         financingApi.currencies.get({}),
@@ -38,7 +48,7 @@ export const useCurrenciesData = () => {
         currencies_investiments: [],
       };
 
-      const investiments_by_id: { [key: string]: any } = {};
+      const investiments_by_id: { [key: string]: InvestimentDataDTO } = {};
       const currencies_investiments_by_id: { [currency_id: string]: CurrencyInvestimentsDTO } = {};
       currencies.forEach(c => {
         const currency_investment = {
@@ -101,7 +111,7 @@ export const useCurrenciesData = () => {
     }
   }, []);
 
-  useMemo(() => {
+  useEffect(() => {
     fetchData();
   }, [fetchData]);
 

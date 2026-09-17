@@ -1,4 +1,4 @@
-import { FinancingApi } from "../services/financing-server/financing-api";
+import { financingApi } from "../services/financing-server/financing-api";
 
 const b3NamesChanged: {[key: string]: string} = {
   'TRPL4': 'ISAE4',
@@ -7,8 +7,6 @@ const b3NamesChanged: {[key: string]: string} = {
 };
 
 export const readDividendsB3Sheet = async (data: (string | number)[][]) => {
-  const financingApi = new FinancingApi();
-
   const investiments = await financingApi.investiments.get({});
   const investimentByName: { [name: string]: string } = {};
   investiments.forEach((inv) => investimentByName[inv.name] = inv.id);
@@ -46,7 +44,7 @@ export const readDividendsB3Sheet = async (data: (string | number)[][]) => {
     const quantity = parseInt(dividend[4]);
 
     const [dia, mes, ano] = dividend[1].split('/');
-    const date = new Date(`${ano}-${mes}-${dia}`);
+    const date = new Date(`${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`);
 
     let name = dividend[0].split(' ')[0];
     if (b3NamesChanged[name]) name = b3NamesChanged[name];
@@ -65,8 +63,7 @@ export const readDividendsB3Sheet = async (data: (string | number)[][]) => {
       });
       successCount++;
     } catch (error) {
-      console.log(body)
-      console.error(`Failed to post dividend: ${error}`);
+      console.error(`Failed to post dividend: ${JSON.stringify(body)}`, error);
     }
   }
 

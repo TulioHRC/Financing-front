@@ -28,3 +28,5 @@ export class FinancingApi {
     this.dividends = new FinancingDividendsService(this.client);
   }
 }
+
+export const financingApi = new FinancingApi();

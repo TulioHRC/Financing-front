@@ -18,9 +18,7 @@ const CurrenciesOperations: React.FC = () => {
   };
 
   const handleButtonClick = async (id: string) => {
-    const res = await removeCurrencyOperationsById(id);
-    console.log(`deleted: ${res}`);
-
+    await removeCurrencyOperationsById(id);
     refetch();
   };
 

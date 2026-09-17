@@ -19,7 +19,7 @@ import {
   EditForm,
   PriceInput,
 } from "./styles/styled-components";
-import { FinancingApi } from "../../services/financing-server/financing-api";
+import { financingApi } from "../../services/financing-server/financing-api";
 import { Toaster } from "react-hot-toast";
 import toast from "react-hot-toast";
 import { UpdatePricesModal } from "./UpdatePricesModal";
@@ -58,11 +58,9 @@ const Data: React.FC = () => {
   };
 
   const handleSave = async (id: string) => {
-    const financingApiService = new FinancingApi();
-
     setEditingId(null);
     try {
-      await financingApiService.prices.post({
+      await financingApi.prices.post({
         body: {
           investiment_id: id,
           price: parseFloat(newPrice),

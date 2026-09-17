@@ -5,10 +5,11 @@ interface GenericTableProps<T> {
   data: T[];
   filters: T;
   onFilterChange: (field: keyof T, value: string) => void;
-  onRowButtonClick?: (id: any) => void;
+  onRowButtonClick?: (id: string) => void;
   buttonText?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const GenericTable = <T extends Record<string, any>>({
   data,
   filters,
@@ -32,7 +33,7 @@ const GenericTable = <T extends Record<string, any>>({
 
   const filteredData = data.filter((item) =>
     Object.keys(filters).every((key) =>
-      filters[key] === null || String(item[key]).toLowerCase().includes(filters[key].toLowerCase())
+      filters[key] === null || String(item[key]).toLowerCase().includes(String(filters[key]).toLowerCase())
     )
   );
 

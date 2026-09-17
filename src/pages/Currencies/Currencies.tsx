@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import GenericTable from "../../components/generic-table/GenericTable";
 import { CurrencyInvestimentsDTO, useCurrenciesData } from "../../hooks/useCurrenciesData";
 import { updateCurrencyById } from "../../hooks/functions/updateById";
@@ -18,13 +19,21 @@ const Currencies: React.FC = () => {
   };
 
   const handleButtonClick = async (id: string) => {
-    const newQuotation = Number(prompt("New Quotation:"));
-    console.log(newQuotation, typeof newQuotation)
-    if (newQuotation) {
-      const res = await updateCurrencyById(id, {quotation_in_BRL: newQuotation});
-      console.log(`updated: ${res}`);
-  
+    const promptValue = prompt("New Quotation:");
+    if (promptValue === null) return;
+
+    const newQuotation = Number(promptValue);
+    if (promptValue.trim() === '' || Number.isNaN(newQuotation)) {
+      toast.error("Invalid quotation value");
+      return;
+    }
+
+    try {
+      await updateCurrencyById(id, { quotation_in_BRL: newQuotation });
+      toast.success("Quotation updated successfully");
       refetch();
+    } catch {
+      toast.error("Failed to update quotation");
     }
   };
 
@@ -33,13 +42,16 @@ const Currencies: React.FC = () => {
   }
 
   return (
-    <GenericTable
-      data={data.currencies_investiments}
-      filters={filters}
-      onFilterChange={handleFilterChange}
-      onRowButtonClick={handleButtonClick}
-      buttonText="Edit"
-    />
+    <>
+      <GenericTable
+        data={data.currencies_investiments}
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onRowButtonClick={handleButtonClick}
+        buttonText="Edit"
+      />
+      <Toaster position="bottom-right" />
+    </>
   );
 };
 

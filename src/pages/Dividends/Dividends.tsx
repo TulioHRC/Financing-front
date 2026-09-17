@@ -31,8 +31,8 @@ const Dividends: React.FC = () => {
     let cumulativeTotal = 0;
 
     const filteredData: DividendsDTO[] = data.filter((item: DividendsDTO) =>
-      Object.keys(filters).every((key) =>
-        (filters as any)[key] === null || String((item as any)[key]).toLowerCase().includes(String((filters as any)[key]).toLowerCase())
+      (Object.keys(filters) as (keyof DividendsDTO)[]).every((key) =>
+        filters[key] === null || String(item[key]).toLowerCase().includes(String(filters[key]).toLowerCase())
       )
     );
   
@@ -65,9 +65,7 @@ const Dividends: React.FC = () => {
   };
 
   const handleButtonClick = async (id: string) => {
-    const res = await removeDividendById(id);
-    console.log(`deleted: ${res}`);
-
+    await removeDividendById(id);
     refetch();
   };
 

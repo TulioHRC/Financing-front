@@ -18,9 +18,7 @@ const InvestimentsOperations: React.FC = () => {
   };
 
   const handleButtonClick = async (id: string) => {
-    const res = await removeInvestimentsOperationsById(id);
-    console.log(`deleted: ${res}`);
-
+    await removeInvestimentsOperationsById(id);
     refetch();
   };
 

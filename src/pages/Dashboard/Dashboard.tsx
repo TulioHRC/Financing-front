@@ -1,40 +1,53 @@
 import { Container, ChartsContainer, PortifolioContainer, SwitchContainer, HeaderContainer, Box } from "./styles/styled-components";
 import { Dropdown, formatCurrency, PortfolioDTO } from "../../components/dropdown/Dropdown";
 import { DashboardDataDTO, useDashboardData } from "../../hooks/useDashboardData";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Switch } from "../../components/switch/Switch";
 import PieChartComponent, { PieChartData } from "../../components/charts/PieChartComponent";
 import BarChartComponent, { BarChartData } from "../../components/charts/BarChartComponent";
 
-const transformPortifolioDataInInvestedByType = (data: DashboardDataDTO) : PieChartData => {
-  const res : PieChartData = [];
-  const investedByType : { [key: string] : number } = {};
+type InvestimentDataDTO = DashboardDataDTO['investiments'][number];
+type CurrencyInvestimentDataDTO = DashboardDataDTO['currencies_investiments'][number];
+
+const groupPortifolioByType = (
+  data: DashboardDataDTO,
+  investimentValue: (inv: InvestimentDataDTO) => number,
+  currencyValue: (cInv: CurrencyInvestimentDataDTO) => number
+) : PieChartData => {
+  const valueByType : { [key: string] : number } = {};
   const types = [...new Set(data.investiments.map(investiment => investiment.investiment_type)), 'CURRENCIES'];
   for (const type of types) {
-    investedByType[type] = 0;
+    valueByType[type] = 0;
   }
 
   data.investiments.forEach(inv => {
     if (inv.quantity > 0) {
-      investedByType[inv.investiment_type] += inv.quantity * inv.average_price * inv.quotation;
+      valueByType[inv.investiment_type] += investimentValue(inv);
     }
   });
 
   data.currencies_investiments.forEach(cInv => {
     if (cInv.quantity > 0) {
-      investedByType['CURRENCIES'] += ((cInv.quantity - cInv.used_quantity) / cInv.quantity)  * cInv.price;
+      valueByType['CURRENCIES'] += currencyValue(cInv);
     }
   });
 
-  for (const type of types) {
-    res.push({
-      name: type,
-      value: investedByType[type],
-    });  
-  }
-
-  return res;
+  return types.map(type => ({ name: type, value: valueByType[type] }));
 }
+
+const transformPortifolioDataInInvestedByType = (data: DashboardDataDTO) : PieChartData =>
+  groupPortifolioByType(
+    data,
+    inv => inv.quantity * inv.average_price * inv.quotation,
+    cInv => ((cInv.quantity - cInv.used_quantity) / cInv.quantity) * cInv.price
+  );
+
+const transformPortifolioDataInActualByType = (data: DashboardDataDTO) : PieChartData =>
+  groupPortifolioByType(
+    data,
+    inv => inv.quantity * (inv.actual_price ?? 0) * inv.quotation,
+    cInv => (cInv.quantity - cInv.used_quantity) * cInv.quotation
+  );
 
 const transformPortifolioDataInPatrimonialGrowth = (data: DashboardDataDTO) : BarChartData => {
   const res : BarChartData = [];
@@ -45,36 +58,6 @@ const transformPortifolioDataInPatrimonialGrowth = (data: DashboardDataDTO) : Ba
       value: data.patrimony_by_month[key],
     });
   })
-
-  return res;
-}
-
-const transformPortifolioDataInActualByType = (data: DashboardDataDTO) : PieChartData => {
-  const res : PieChartData = [];
-  const actualByType : { [key: string] : number } = {};
-  const types = [...new Set(data.investiments.map(investiment => investiment.investiment_type)), 'CURRENCIES'];
-  for (const type of types) {
-    actualByType[type] = 0;
-  }
-
-  data.investiments.forEach(inv => {
-    if (inv.quantity > 0) {
-      actualByType[inv.investiment_type] += inv.quantity * (inv.actual_price ?? 0) * inv.quotation;
-    }
-  });
-
-  data.currencies_investiments.forEach(cInv => {
-    if (cInv.quantity > 0) {
-      actualByType['CURRENCIES'] += (cInv.quantity - cInv.used_quantity)  * cInv.quotation;
-    }
-  });
-
-  for (const type of types) {
-    res.push({
-      name: type,
-      value: actualByType[type],
-    });  
-  }
 
   return res;
 }
@@ -126,12 +109,29 @@ const Dashboard: React.FC = () => {
   const [currency, setCurrency] = useState<string>(import.meta.env.VITE_MAIN_CURRENCY_ID);
   const { portfilioData, isLoading } = useDashboardData({ id: currency });
 
+  const investedByType = useMemo(
+    () => (portfilioData ? transformPortifolioDataInInvestedByType(portfilioData) : []),
+    [portfilioData]
+  );
+  const actualByType = useMemo(
+    () => (portfilioData ? transformPortifolioDataInActualByType(portfilioData) : []),
+    [portfilioData]
+  );
+  const patrimonialGrowth = useMemo(
+    () => (portfilioData ? transformPortifolioDataInPatrimonialGrowth(portfilioData) : []),
+    [portfilioData]
+  );
+  const dropdownItems = useMemo(
+    () => (portfilioData ? transformPortifolioDataInDropdownItems(portfilioData) : {}),
+    [portfilioData]
+  );
+
   if (isLoading || portfilioData === null) {
     return <div>Loading...</div>;
   }
 
-  const investedValue = transformPortifolioDataInInvestedByType(portfilioData).reduce((acc, curr) => acc + curr.value, 0);
-  const actualValue = transformPortifolioDataInActualByType(portfilioData).reduce((acc, curr) => acc + curr.value, 0);
+  const investedValue = investedByType.reduce((acc, curr) => acc + curr.value, 0);
+  const actualValue = actualByType.reduce((acc, curr) => acc + curr.value, 0);
   const growthPercentage = ((actualValue - investedValue) / investedValue) * 100;
   const isProfit = growthPercentage > 0;
   const isLoss = growthPercentage < 0;
@@ -149,9 +149,9 @@ const Dashboard: React.FC = () => {
         />
       </SwitchContainer>
       <ChartsContainer>
-        <PieChartComponent title="Invested" data={transformPortifolioDataInInvestedByType(portfilioData)} />
-        <PieChartComponent title="Actual" data={transformPortifolioDataInActualByType(portfilioData)} />
-        <BarChartComponent title="Patrimonial Growth" data={transformPortifolioDataInPatrimonialGrowth(portfilioData)} />
+        <PieChartComponent title="Invested" data={investedByType} />
+        <PieChartComponent title="Actual" data={actualByType} />
+        <BarChartComponent title="Patrimonial Growth" data={patrimonialGrowth} />
       </ChartsContainer>
       <PortifolioContainer>
         <HeaderContainer>
@@ -173,7 +173,7 @@ const Dashboard: React.FC = () => {
             </div>
           </Box>
         </HeaderContainer>
-        {Object.entries(transformPortifolioDataInDropdownItems(portfilioData)).map(([type, item]) => (
+        {Object.entries(dropdownItems).map(([type, item]) => (
           <Dropdown name={type} items={item} key={type} currency={portfilioData.currencies.find((c) => c.id === currency)?.name} />
         ))}
       </PortifolioContainer>

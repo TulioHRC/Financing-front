@@ -1,9 +1,31 @@
 import { useState } from "react";
 import { FormContainer, InputContainer, Label, StyledInput, OptionContainer, OptionButton, SubmitButton, ColumnsContainer } from "./styles/styled-components";
 import { useAddFormData } from "../../hooks/useAddFormData";
-import { FinancingApi } from "../../services/financing-server/financing-api";
+import { financingApi } from "../../services/financing-server/financing-api";
 
-const defaultInvestimentFieldsValue = {
+interface InvestimentFieldsDTO {
+  type: string;
+  name: string;
+  id?: string;
+  segment?: string;
+  currency_name: string;
+  currency_id: string;
+  quantity: number;
+  paidPrice: number;
+  date?: Date;
+}
+
+interface CurrencyFieldsDTO {
+  price: number;
+  bought_currency_name: string;
+  bought_currency_id: string;
+  selled_currency_name: string;
+  selled_currency_id: string;
+  quantity: number;
+  date?: Date;
+}
+
+const defaultInvestimentFieldsValue: InvestimentFieldsDTO = {
   type: '',
   name: '',
   currency_name: '',
@@ -12,7 +34,7 @@ const defaultInvestimentFieldsValue = {
   paidPrice: 0,
 };
 
-const defaultCurrencyFieldsValue = {
+const defaultCurrencyFieldsValue: CurrencyFieldsDTO = {
   price: 0,
   bought_currency_name: '',
   bought_currency_id: '',
@@ -32,26 +54,8 @@ const defaultDividendFieldsValue = {
 const AddForm: React.FC = () => {
   const { data, isLoading, refetch } = useAddFormData();
   const [type, setType] = useState<string | null>(null);
-  const [investimentFields, setInvestimentFields] = useState<{
-    type: string,
-    name: string,
-    id?: string,
-    segment?: string,
-    currency_name: string,
-    currency_id: string,
-    quantity: number,
-    paidPrice: number,
-    date?: Date;
-  }>(defaultInvestimentFieldsValue);
-  const [currencyFields, setCurrencyFields] = useState<{
-    price: number;
-    bought_currency_name: string;
-    bought_currency_id: string;
-    selled_currency_name: string;
-    selled_currency_id: string;
-    quantity: number;
-    date?: Date;
-  }>(defaultCurrencyFieldsValue);
+  const [investimentFields, setInvestimentFields] = useState<InvestimentFieldsDTO>(defaultInvestimentFieldsValue);
+  const [currencyFields, setCurrencyFields] = useState<CurrencyFieldsDTO>(defaultCurrencyFieldsValue);
   const [dividendFields, setDividendFields] = useState(defaultDividendFieldsValue);
 
   if (isLoading === true) {
@@ -63,8 +67,6 @@ const AddForm: React.FC = () => {
   };
 
   const handleInvestimentSubmit = async () => {
-    const financingApi = new FinancingApi();
-
     const data = { ...investimentFields };
 
     if (data.id === undefined) {
@@ -94,14 +96,7 @@ const AddForm: React.FC = () => {
   };
 
   const handleCurrencySubmit = async () => {
-    const financingApi = new FinancingApi();
-
     const data = { ...currencyFields };
-
-    if (data.selled_currency_id === undefined) {
-      console.log("Please provide an existing selled currency");
-      // TODO: alert
-    }
 
     if (data.bought_currency_id === '') {
       const res = await financingApi.currencies.post({
@@ -129,8 +124,6 @@ const AddForm: React.FC = () => {
   };
 
   const handleDividendSubmit = async () => {
-    const financingApi = new FinancingApi();
-
     await financingApi.dividends.post({
       body: {
         investiment_id: dividendFields.investiment_id,

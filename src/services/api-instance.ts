@@ -34,8 +34,7 @@ class ApiInstance {
   ): Promise<AxiosResponse> {
     try {
       return await this.client(config);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error) {
       if (retryCount < settings.maxRetries) {
         await this.delay(
           settings.delayType === "exponential"
@@ -44,11 +43,16 @@ class ApiInstance {
         );
         return this.retryRequest(config, retryCount + 1, settings);
       }
-      throw new Error(
-        `${error.message}.
+
+      if (axios.isAxiosError(error)) {
+        throw new Error(
+          `${error.message}.
 ${error.response?.data?.title ?? error.response?.data?.message ?? ""}
 '${this.client.defaults.baseURL}/${config.url}' API request failed`
-      );
+        );
+      }
+
+      throw error;
     }
   }
 
@@ -62,8 +66,7 @@ ${error.response?.data?.title ?? error.response?.data?.message ?? ""}
 
   public async get<T>(
     url: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    params: Record<string, any>,
+    params: Record<string, unknown>,
     options: {
       bearerToken?: string;
       settings?: RetrySettings;

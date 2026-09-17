@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { FinancingApi } from "../../services/financing-server/financing-api";
+import { financingApi } from "../../services/financing-server/financing-api";
 
 interface Investment {
   id: string;
@@ -42,21 +42,19 @@ export const UpdatePricesModal: React.FC<UpdatePricesModalProps> = ({
   }, [open, initialInvestments]);
 
   const handleUpdateAll = async () => {
-    const financingApiService = new FinancingApi();
-
     setInvestments((current) =>
       current.map((inv) => ({ ...inv, status: "UPDATING" }))
     );
 
     for (const investment of investments) {
       try {
-        const externalValue = await financingApiService.prices.getFromExternalApi({
+        const externalValue = await financingApi.prices.getFromExternalApi({
           params: {investimentId: investment.id}
         });
 
         if (!externalValue) throw new Error("No external api value found!");
 
-        await financingApiService.prices.post({
+        await financingApi.prices.post({
           body: {
             investiment_id: investment.id,
             price: externalValue.value,
