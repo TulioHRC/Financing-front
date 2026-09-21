@@ -3,6 +3,7 @@ import { FinancingOperationsDeleteResponseDTO } from './dto/financing-operations
 import { FinancingOperationsResponseDTO } from './dto/financing-operations.get.response.dto';
 import { FinancingOperationsPostBodyDTO } from './dto/financing-operations.post.body.dto';
 import { FinancingOperationsPostResponseDTO } from './dto/financing-operations.post.response.dto';
+import { FinancingOperationsMonthlyFlowResponseDTO } from './dto/financing-operations.monthly-flow.response.dto';
 
 export class FinancingOperationsService {
   private readonly client: ApiInstance;
@@ -33,6 +34,20 @@ export class FinancingOperationsService {
   ): Promise<FinancingOperationsResponseDTO> {
     return (await this.client.get<FinancingOperationsResponseDTO>(
       ``,
+      {},
+      {
+        settings: request.settings,
+      }
+    )).data;
+  }
+
+  async getMonthlyFlow(
+    request: {
+      settings?: RetrySettings;
+    } = {}
+  ): Promise<FinancingOperationsMonthlyFlowResponseDTO> {
+    return (await this.client.get<FinancingOperationsMonthlyFlowResponseDTO>(
+      `monthly-flow`,
       {},
       {
         settings: request.settings,

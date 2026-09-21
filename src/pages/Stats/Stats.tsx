@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { useDashboardData } from "../../hooks/useDashboardData";
+import { useInvestimentsPerformance } from "../../hooks/useInvestimentsPerformance";
+import { useCurrencyExposure } from "../../hooks/useCurrencyExposure";
+import { useOperationsMonthlyFlow } from "../../hooks/useOperationsMonthlyFlow";
 import { formatCurrency } from "../../components/dropdown/Dropdown";
 import { Switch } from "../../components/switch/Switch";
 import PieChartComponent from "../../components/charts/PieChartComponent";
+import BarChartComponent, { BarChartData } from "../../components/charts/BarChartComponent";
 import {
   Container,
   HeaderSection,
@@ -31,9 +36,22 @@ import {
 const Stats: React.FC = () => {
   const [currency, setCurrency] = useState<string>(import.meta.env.VITE_MAIN_CURRENCY_ID);
   const { portfilioData, isLoading } = useDashboardData({ id: currency });
+  const { data: performanceData } = useInvestimentsPerformance();
+  const { data: currencyExposureData } = useCurrencyExposure();
+  const { data: monthlyFlowData } = useOperationsMonthlyFlow();
 
   const [sortKey, setSortKey] = useState<"name" | "type" | "cost" | "current" | "gain" | "roi">("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  const roiChartData = useMemo((): BarChartData => {
+    if (!performanceData) return [];
+    return performanceData.map((item) => ({ name: item.name, value: Number(item.roi_percent.toFixed(1)) }));
+  }, [performanceData]);
+
+  const currencyExposureChartData = useMemo(() => {
+    if (!currencyExposureData) return [];
+    return currencyExposureData.map((item) => ({ name: item.currency_name, value: item.total_value_brl }));
+  }, [currencyExposureData]);
 
   if (isLoading || portfilioData === null) {
     return (
@@ -271,8 +289,45 @@ const Stats: React.FC = () => {
               legendVerticalAlign="middle"
             />
           </SectionCard>
+
+          {currencyExposureChartData.length > 0 && (
+            <SectionCard>
+              <PieChartComponent
+                title="Currency Exposure"
+                data={currencyExposureChartData}
+                legendLayout="vertical"
+                legendAlign="right"
+                legendVerticalAlign="middle"
+              />
+            </SectionCard>
+          )}
         </div>
       </MainContentGrid>
+
+      {roiChartData.length > 0 && (
+        <SectionCard>
+          <BarChartComponent title="ROI by Asset (%)" data={roiChartData} />
+        </SectionCard>
+      )}
+
+      {monthlyFlowData && monthlyFlowData.length > 0 && (
+        <SectionCard>
+          <SectionTitle>Monthly Operations Flow (BRL)</SectionTitle>
+          <div style={{ width: "100%", height: "300px" }}>
+            <ResponsiveContainer>
+              <BarChart data={monthlyFlowData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip formatter={(value: number) => formatCurrency(value, "BRL")} />
+                <Legend />
+                <Bar dataKey="buy_value_brl" name="Buys" fill="#2A7E39" />
+                <Bar dataKey="sell_value_brl" name="Sells" fill="#F03E3E" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </SectionCard>
+      )}
     </Container>
   );
 };

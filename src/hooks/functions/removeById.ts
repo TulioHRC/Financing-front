@@ -3,6 +3,8 @@ import { FinancingCurrenciesDeleteResponseDTO } from "../../services/financing-s
 import { FinancingDividendsDeleteResponseDTO } from "../../services/financing-server/dividends/dto/financing-dividends.delete.response.dto";
 import { financingApi } from "../../services/financing-server/financing-api"
 import { FinancingOperationsDeleteResponseDTO } from "../../services/financing-server/operations/dto/financing-operations.delete.response.dto";
+import { FinancingWatchlistAssetsDeleteResponseDTO } from "../../services/financing-server/watchlist-assets/dto/financing-watchlist-assets.delete.response.dto";
+import { FinancingAssetAnalysesDeleteResponseDTO } from "../../services/financing-server/asset-analyses/dto/financing-asset-analyses.delete.response.dto";
 
 export async function removeCurrencyById(id: string): Promise<FinancingCurrenciesDeleteResponseDTO> {
   return await financingApi.currencies.deleteById({
@@ -24,6 +26,18 @@ export async function removeInvestimentsOperationsById(id: string): Promise<Fina
 
 export async function removeDividendById(id: string): Promise<FinancingDividendsDeleteResponseDTO> {
   return await financingApi.dividends.deleteById({
+    id: id
+  });
+}
+
+export async function removeWatchlistAssetById(id: string): Promise<FinancingWatchlistAssetsDeleteResponseDTO> {
+  return await financingApi.watchlistAssets.deleteById({
+    id: id
+  });
+}
+
+export async function removeAssetAnalysisById(id: string): Promise<FinancingAssetAnalysesDeleteResponseDTO> {
+  return await financingApi.assetAnalyses.deleteById({
     id: id
   });
 }

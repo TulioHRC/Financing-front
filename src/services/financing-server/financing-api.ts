@@ -5,6 +5,8 @@ import { FinancingDividendsService } from './dividends/financing-dividends';
 import { FinancingInvestimentsService } from './investiments/financing-investiments';
 import { FinancingOperationsService } from './operations/financing-operations';
 import { FinancingPricesService } from './prices/financing-prices';
+import { FinancingWatchlistAssetsService } from './watchlist-assets/financing-watchlist-assets';
+import { FinancingAssetAnalysesService } from './asset-analyses/financing-asset-analyses';
 
 export class FinancingApi {
   private client: ApiInstance;
@@ -15,6 +17,8 @@ export class FinancingApi {
   public prices: FinancingPricesService;
   public currenciesOperations: FinancingCurrenciesOperationsService;
   public dividends: FinancingDividendsService;
+  public watchlistAssets: FinancingWatchlistAssetsService;
+  public assetAnalyses: FinancingAssetAnalysesService;
 
   constructor(client?: ApiInstance) {
     // Always ending the FINANCING_BASE_URL with '/'
@@ -26,6 +30,8 @@ export class FinancingApi {
     this.prices = new FinancingPricesService(this.client);
     this.currenciesOperations = new FinancingCurrenciesOperationsService(this.client);
     this.dividends = new FinancingDividendsService(this.client);
+    this.watchlistAssets = new FinancingWatchlistAssetsService(this.client);
+    this.assetAnalyses = new FinancingAssetAnalysesService(this.client);
   }
 }
 

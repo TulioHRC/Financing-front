@@ -12,6 +12,10 @@ import Currencies from "./pages/Currencies/Currencies";
 import CurrenciesOperations from "./pages/CurrenciesOperations/CurrenciesOperations";
 import Dividends from "./pages/Dividends/Dividends";
 import Stats from "./pages/Stats/Stats";
+import Watchlist from "./pages/Watchlist/Watchlist";
+import AssetAnalysisForm from "./pages/Watchlist/AssetAnalysisForm";
+import WatchlistDetail from "./pages/Watchlist/WatchlistDetail";
+import WatchlistCompare from "./pages/Watchlist/WatchlistCompare";
 
 const AppContainer = styled.div`
   display: flex;
@@ -30,6 +34,7 @@ const App: React.FC = () => {
     { label: "Currencies", link: "/currencies" },
     { label: "Currencies Operations", link: "/currencies-operations" },
     { label: "Stats", link: "/stats" },
+    { label: "Watchlist", link: "/watchlist" },
     { label: "Data", link: "/data" },
     { label: "Add", link: "/add-form" },
   ];
@@ -48,6 +53,12 @@ const App: React.FC = () => {
           <Route path="/stats" element={<Stats />} />
           <Route path="/data" element={<Data />} />
           <Route path="/add-form" element={<AddForm />} />
+          <Route path="/watchlist" element={<Watchlist />} />
+          <Route path="/watchlist/new" element={<AssetAnalysisForm />} />
+          <Route path="/watchlist/compare" element={<WatchlistCompare />} />
+          <Route path="/watchlist/:assetId/analyses/new" element={<AssetAnalysisForm />} />
+          <Route path="/watchlist/:assetId/analyses/:analysisId/edit" element={<AssetAnalysisForm />} />
+          <Route path="/watchlist/:assetId" element={<WatchlistDetail />} />
         </Routes>
       </AppContainer>
     </Router>

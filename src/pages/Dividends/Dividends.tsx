@@ -3,12 +3,25 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import GenericTable from "../../components/generic-table/GenericTable";
 import { removeDividendById } from "../../hooks/functions/removeById";
 import { DividendsDTO, useDividendsData } from "../../hooks/useDividendsData";
+import { useDividendsSummary } from "../../hooks/useDividendsSummary";
+import BarChartComponent, { BarChartData } from "../../components/charts/BarChartComponent";
 import { DividendsContainer, HiddenInput, UploadButton, Alert, CloseButton, Spinner } from "./styles/styled-components";
 import * as XLSX from "xlsx";
 import { readDividendsB3Sheet } from "../../hooks/readDividendsB3Sheet";
 
+const TOP_DIVIDEND_PAYERS_COUNT = 10;
+
 const Dividends: React.FC = () => {
   const { data, isLoading, refetch } = useDividendsData();
+  const { data: summaryData } = useDividendsSummary();
+
+  const topPayersData = useMemo((): BarChartData => {
+    if (!summaryData) return [];
+
+    return summaryData
+      .slice(0, TOP_DIVIDEND_PAYERS_COUNT)
+      .map((item) => ({ name: item.investiment_name, value: item.total_value_after_fees }));
+  }, [summaryData]);
   const [filters, setFilters] = useState<DividendsDTO>({
     investimentName: '',
     investimentType: '',
@@ -133,6 +146,10 @@ const Dividends: React.FC = () => {
           </LineChart>
         </ResponsiveContainer>
       </div>
+
+      {topPayersData.length > 0 && (
+        <BarChartComponent title="Top Dividend Payers" data={topPayersData} />
+      )}
 
       <UploadButton onClick={handleUploadButtonClick} disabled={isUploading}>
         {isUploading ? (

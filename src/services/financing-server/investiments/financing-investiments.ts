@@ -3,6 +3,8 @@ import { FinancingInvestimentsDeleteResponseDTO } from './dto/financing-investim
 import { FinancingInvestimentsGetResponseDTO } from './dto/financing-investiments.get.response.dto';
 import { FinancingInvestimentsPostBodyDTO } from './dto/financing-investiments.post.body.dto';
 import { FinancingInvestimentsPostResponseDTO } from './dto/financing-investiments.post.response.dto';
+import { FinancingInvestimentsPerformanceResponseDTO } from './dto/financing-investiments.performance.response.dto';
+import { FinancingInvestimentsCurrencyExposureResponseDTO } from './dto/financing-investiments.currency-exposure.response.dto';
 
 export class FinancingInvestimentsService {
   private readonly client: ApiInstance;
@@ -33,6 +35,34 @@ export class FinancingInvestimentsService {
   ): Promise<FinancingInvestimentsGetResponseDTO> {
     return (await this.client.get<FinancingInvestimentsGetResponseDTO>(
       ``,
+      {},
+      {
+        settings: request.settings,
+      }
+    )).data;
+  }
+
+  async getPerformance(
+    request: {
+      settings?: RetrySettings;
+    } = {}
+  ): Promise<FinancingInvestimentsPerformanceResponseDTO> {
+    return (await this.client.get<FinancingInvestimentsPerformanceResponseDTO>(
+      `performance`,
+      {},
+      {
+        settings: request.settings,
+      }
+    )).data;
+  }
+
+  async getCurrencyExposure(
+    request: {
+      settings?: RetrySettings;
+    } = {}
+  ): Promise<FinancingInvestimentsCurrencyExposureResponseDTO> {
+    return (await this.client.get<FinancingInvestimentsCurrencyExposureResponseDTO>(
+      `currency-exposure`,
       {},
       {
         settings: request.settings,

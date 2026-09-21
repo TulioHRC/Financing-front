@@ -3,6 +3,7 @@ import { FinancingDividendsDeleteResponseDTO } from './dto/financing-dividends.d
 import { FinancingDividendsGetResponseDTO } from './dto/financing-dividends.get.response.dto';
 import { FinancingDividendsPostBodyDTO } from './dto/financing-dividends.post.body.dto';
 import { FinancingDividendsPostResponseDTO } from './dto/financing-dividends.post.response.dto';
+import { FinancingDividendsSummaryResponseDTO } from './dto/financing-dividends.summary.response.dto';
 
 export class FinancingDividendsService {
   private readonly client: ApiInstance;
@@ -34,6 +35,20 @@ export class FinancingDividendsService {
     return (await this.client.post<FinancingDividendsPostBodyDTO, FinancingDividendsPostResponseDTO>(
       ``,
       request.body,
+      {
+        settings: request.settings,
+      }
+    )).data;
+  }
+
+  async getSummary(
+    request: {
+      settings?: RetrySettings;
+    } = {}
+  ): Promise<FinancingDividendsSummaryResponseDTO> {
+    return (await this.client.get<FinancingDividendsSummaryResponseDTO>(
+      `summary`,
+      {},
       {
         settings: request.settings,
       }
