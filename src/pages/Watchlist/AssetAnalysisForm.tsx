@@ -16,6 +16,8 @@ import {
   TitleContainer,
   Title,
   Subtitle,
+  ActionsRow,
+  PrimaryButton,
   FormCard,
   FieldRow,
   Field,
@@ -36,6 +38,25 @@ import {
   IndicatorLabel,
   ErrorMessage,
 } from "./styles/styled-components";
+
+interface AssetAnalysisImportPayload {
+  asset?: {
+    name: string;
+    asset_type?: string;
+    segment?: string;
+    description?: string;
+    investiment_name?: string;
+  };
+  date?: string;
+  verdict?: AssetVerdict;
+  observations?: string;
+  categories?: {
+    category: AnalysisCategory;
+    score?: number;
+    comment?: string;
+    indicators?: { name: string; value: number | string; unit?: string }[];
+  }[];
+}
 
 interface IndicatorFormState {
   name: string;
@@ -78,6 +99,9 @@ const AssetAnalysisForm: React.FC = () => {
   const [categories, setCategories] = useState<CategoryFormState[]>(buildEmptyCategories());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showImport, setShowImport] = useState(false);
+  const [importText, setImportText] = useState("");
+  const [importError, setImportError] = useState<string | null>(null);
 
   useEffect(() => {
     if (assetId) {
@@ -152,6 +176,106 @@ const AssetAnalysisForm: React.FC = () => {
           : c
       )
     );
+  };
+
+  // A name match against the watchlist itself, or a match against an owned
+  // investment that's already linked to some other watchlist entry, both mean
+  // "this isn't a new asset" — the backend enforces one watchlist asset per
+  // investment, so without this check the create call below would fail with a
+  // unique constraint error. Shared by manual typing and JSON import.
+  const applyAssetName = (name: string) => {
+    const ownedInvestiment = formData?.investiments.find((i) => i.name === name);
+    const existingWatchlistAsset =
+      formData?.watchlistAssets.find((a) => a.name === name) ??
+      formData?.watchlistAssets.find((a) => a.investiment_id === ownedInvestiment?.id);
+
+    if (existingWatchlistAsset) {
+      setExistingAssetId(existingWatchlistAsset.id);
+      setAssetFields((prev) => ({
+        ...prev,
+        name,
+        asset_type: existingWatchlistAsset.asset_type,
+        segment: existingWatchlistAsset.segment ?? "",
+        description: existingWatchlistAsset.description ?? "",
+        investiment_id: existingWatchlistAsset.investiment_id ?? "",
+        investiment_name:
+          formData?.investiments.find((i) => i.id === existingWatchlistAsset.investiment_id)
+            ?.name ?? "",
+      }));
+      return true;
+    }
+
+    setExistingAssetId("");
+    setAssetFields((prev) => ({
+      ...prev,
+      name,
+      ...(ownedInvestiment
+        ? {
+          asset_type: ownedInvestiment.asset_type,
+          segment: ownedInvestiment.segment,
+          investiment_id: ownedInvestiment.id,
+          investiment_name: ownedInvestiment.name,
+        }
+        : {}),
+    }));
+    return false;
+  };
+
+  const handleImportJson = () => {
+    setImportError(null);
+
+    let parsed: AssetAnalysisImportPayload;
+    try {
+      parsed = JSON.parse(importText);
+    } catch {
+      setImportError("Invalid JSON — couldn't parse it.");
+      return;
+    }
+
+    if (isNewAsset) {
+      if (!parsed.asset?.name) {
+        setImportError('Missing "asset.name" for a new watchlist entry.');
+        return;
+      }
+
+      const matchedExisting = applyAssetName(parsed.asset.name);
+      if (!matchedExisting) {
+        const investimentByName = parsed.asset.investiment_name
+          ? formData?.investiments.find((i) => i.name === parsed.asset!.investiment_name)
+          : undefined;
+        setAssetFields((prev) => ({
+          ...prev,
+          asset_type: parsed.asset?.asset_type ?? prev.asset_type,
+          segment: parsed.asset?.segment ?? prev.segment,
+          description: parsed.asset?.description ?? prev.description,
+          investiment_name: parsed.asset?.investiment_name ?? prev.investiment_name,
+          investiment_id: investimentByName?.id ?? prev.investiment_id,
+        }));
+      }
+    }
+
+    setDate(parsed.date ? parsed.date.slice(0, 10) : todayDateInputValue());
+    setObservations(parsed.observations ?? "");
+    setVerdict(ASSET_VERDICTS.some((v) => v.key === parsed.verdict) ? parsed.verdict : undefined);
+    setCategories(
+      ANALYSIS_CATEGORIES.map((c) => {
+        const found = parsed.categories?.find((cat) => cat.category === c.key);
+        return {
+          category: c.key,
+          score: typeof found?.score === "number" ? found.score : 3,
+          comment: found?.comment ?? "",
+          indicators:
+            found?.indicators?.map((i) => ({
+              name: String(i.name ?? ""),
+              value: i.value === undefined || i.value === null ? "" : String(i.value),
+              unit: i.unit ?? "",
+            })) ?? [],
+        };
+      })
+    );
+
+    setImportText("");
+    setShowImport(false);
   };
 
   const handleSubmit = async () => {
@@ -229,7 +353,47 @@ const AssetAnalysisForm: React.FC = () => {
             {isNewAsset ? "Add a new asset to your watchlist" : `For ${assetName || "..."}`}
           </Subtitle>
         </TitleContainer>
+        <ActionsRow>
+          <PrimaryButton type="button" onClick={() => setShowImport((prev) => !prev)}>
+            {showImport ? "Close Import" : "Import JSON"}
+          </PrimaryButton>
+        </ActionsRow>
       </HeaderSection>
+
+      {showImport && (
+        <FormCard>
+          <Field>
+            <Label htmlFor="import-json">
+              Paste analysis JSON{isNewAsset ? " (include \"asset\" to fill in the watchlist entry)" : ""}
+            </Label>
+            <StyledTextarea
+              id="import-json"
+              rows={10}
+              value={importText}
+              onChange={(e) => setImportText(e.target.value)}
+              placeholder={JSON.stringify(
+                {
+                  asset: isNewAsset
+                    ? { name: "TRPL4", asset_type: "STOCK", segment: "energia", description: "...", investiment_name: "TRPL4" }
+                    : undefined,
+                  date: "2026-09-22",
+                  verdict: "BUY",
+                  observations: "...",
+                  categories: [{ category: "PROFITABILITY", score: 4, comment: "...", indicators: [{ name: "ROE", value: 21.5, unit: "%" }] }],
+                },
+                null,
+                2
+              )}
+            />
+          </Field>
+          {importError && <ErrorMessage>{importError}</ErrorMessage>}
+          <ActionsRow>
+            <PrimaryButton type="button" onClick={handleImportJson} disabled={importText.trim() === ""}>
+              Apply Import
+            </PrimaryButton>
+          </ActionsRow>
+        </FormCard>
+      )}
 
       {isNewAsset && (
         <FormCard>
@@ -241,47 +405,7 @@ const AssetAnalysisForm: React.FC = () => {
                 type="text"
                 list="asset-names"
                 value={assetFields.name}
-                onChange={(e) => {
-                  const name = e.target.value;
-                  const ownedInvestiment = formData?.investiments.find((i) => i.name === name);
-                  // A name match against the watchlist itself, or a match against an
-                  // owned investment that's already linked to some other watchlist
-                  // entry, both mean "this isn't a new asset" — the backend enforces
-                  // one watchlist asset per investment, so without this check the
-                  // create call below would fail with a unique constraint error.
-                  const existingWatchlistAsset =
-                    formData?.watchlistAssets.find((a) => a.name === name) ??
-                    formData?.watchlistAssets.find((a) => a.investiment_id === ownedInvestiment?.id);
-
-                  if (existingWatchlistAsset) {
-                    setExistingAssetId(existingWatchlistAsset.id);
-                    setAssetFields((prev) => ({
-                      ...prev,
-                      name,
-                      asset_type: existingWatchlistAsset.asset_type,
-                      segment: existingWatchlistAsset.segment ?? "",
-                      description: existingWatchlistAsset.description ?? "",
-                      investiment_id: existingWatchlistAsset.investiment_id ?? "",
-                      investiment_name:
-                        formData?.investiments.find((i) => i.id === existingWatchlistAsset.investiment_id)
-                          ?.name ?? "",
-                    }));
-                  } else {
-                    setExistingAssetId("");
-                    setAssetFields((prev) => ({
-                      ...prev,
-                      name,
-                      ...(ownedInvestiment
-                        ? {
-                          asset_type: ownedInvestiment.asset_type,
-                          segment: ownedInvestiment.segment,
-                          investiment_id: ownedInvestiment.id,
-                          investiment_name: ownedInvestiment.name,
-                        }
-                        : {}),
-                    }));
-                  }
-                }}
+                onChange={(e) => applyAssetName(e.target.value)}
                 placeholder="TRPL4 - ISA CTEEP"
               />
               <datalist id="asset-names">
